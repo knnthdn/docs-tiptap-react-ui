@@ -1,0 +1,64 @@
+﻿# Styling API
+
+The package includes editor styles and accepts class name props for layout and typography customization.
+
+## Import CSS
+
+Import the package stylesheet once in your app.
+
+```tsx
+import "tiptap-react-ui/style.css";
+```
+
+Alternative path:
+
+```tsx
+import "tiptap-react-ui/dist/index.css";
+```
+
+## Class Name Props
+
+| API | Prop | Applied To |
+| --- | --- | --- |
+| `useTiptapEditor` | `className` | ProseMirror editor element. |
+| `RichTextEditor` | `className` | Editor content wrapper passed to `EditorContent`. |
+| `RenderJSON` | `contentClassName` | Rendered content container. |
+| `RenderJSON` | `editorsClassName` | Internal read-only editor element. |
+| `RenderHTML` | `className` | HTML output wrapper. |
+
+## useTiptapEditor Classes
+
+The hook adds base classes to the editor element:
+
+```txt
+tiptap text-base min-h-50 max-h-[60vh] overflow-y-auto
+```
+
+In edit mode, it also adds padding, border, and focus styles. When `isPreview` is true, those edit-mode classes are omitted.
+
+## Examples
+
+```tsx
+const { editor } = useTiptapEditor({
+  className: "min-h-[420px] max-h-[80vh] rounded-md",
+});
+```
+
+```tsx
+<RenderJSON
+  content={content}
+  contentClassName="prose dark:prose-invert max-w-none"
+  editorsClassName="min-h-[300px]"
+/>
+```
+
+```tsx
+<RenderHTML
+  content={html}
+  className="prose lg:prose-lg dark:prose-invert max-w-none"
+/>
+```
+
+## Styling Notes
+
+Use `className` props for layout and typography. Use the package stylesheet for toolbar, editor, upload, drag handle, image, table, and task list styles.

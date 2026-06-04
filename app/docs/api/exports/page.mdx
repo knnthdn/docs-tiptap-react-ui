@@ -1,0 +1,66 @@
+﻿# Exports
+
+`tiptap-react-ui` exposes a small public API. This page lists the supported import surface for the package.
+
+## Runtime Exports
+
+```tsx
+import {
+  RichTextEditor,
+  useTiptapEditor,
+  RenderJSON,
+  RenderHTML,
+} from "tiptap-react-ui";
+```
+
+| Export            | Kind      | Purpose                                                                                         |
+| ----------------- | --------- | ----------------------------------------------------------------------------------------------- |
+| `RichTextEditor`  | Component | Renders the editor UI, toolbar, bubble menus, preview tabs, save action, and word count footer. |
+| `useTiptapEditor` | Hook      | Creates the preconfigured Tiptap editor instance and returns helpers for reading content.       |
+| `RenderJSON`      | Component | Renders saved Tiptap JSON content in a read-only editor surface.                                |
+| `RenderHTML`      | Component | Renders saved HTML content, with optional sanitization.                                         |
+
+## Type Exports
+
+```ts
+import type { OnSaveArgs } from "tiptap-react-ui";
+```
+
+| Export       | Purpose                                                          |
+| ------------ | ---------------------------------------------------------------- |
+| `OnSaveArgs` | Payload returned by `RichTextEditor` when `onSave` is triggered. |
+
+## Stylesheet Exports
+
+Import one of the package stylesheet entry points once in your application.
+
+```tsx
+import "tiptap-react-ui/style.css";
+```
+
+```tsx
+import "tiptap-react-ui/dist/index.css";
+```
+
+Use the stylesheet import in your root layout, app entry, or global CSS entry depending on your framework.
+
+## Recommended Setup
+
+```tsx
+"use client";
+
+import "tiptap-react-ui/style.css";
+import { RichTextEditor, useTiptapEditor } from "tiptap-react-ui";
+
+export function EditorExample() {
+  const { editor } = useTiptapEditor({
+    immediatelyRender: false,
+  });
+
+  return <RichTextEditor editor={editor} />;
+}
+```
+
+## Import Notes
+
+Only the root package exports are considered public API. Internal files under `dist` or source-like paths should not be imported directly because they can change without a public API change.

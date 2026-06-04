@@ -1,0 +1,88 @@
+# Image Upload API
+
+Image upload is configured through `handleImageUpload` on `useTiptapEditor`.
+
+## Signature
+
+```ts
+type TiptapEditorProps = {
+  handleImageUpload?: {
+    onUpload?: (
+      file: File,
+      onProgress?: (event: { progress: number }) => void,
+      abortSignal?: AbortSignal,
+    ) => Promise<string>;
+    maxLimit?: number;
+    limit?: number;
+  };
+};
+```
+
+## Options
+
+| Option | Type | Default | Description |
+| --- | --- | --- | --- |
+| `onUpload` | `(file, onProgress, abortSignal) => Promise<string>` | fallback uploader | Uploads a file and resolves to the final image URL. |
+| `maxLimit` | `number` | `5` | Maximum file size in megabytes. The library converts this value to bytes internally. |
+| `limit` | `number` | `3` | Maximum number of files allowed for a single upload action. |
+
+
+## Default Base64 Fallback
+
+If you do not provide `handleImageUpload.onUpload`, the library uses its fallback uploader. The fallback reads the selected image with `FileReader.readAsDataURL()` and inserts the image as a base64 data URL.
+
+```tsx
+const { editor } = useTiptapEditor();
+
+// Images are converted to base64 because no onUpload callback is provided.
+```
+
+> **Warning**
+>
+> Base64 images are convenient for demos, local previews, and quick prototypes, but they are not recommended for production content. They make your saved JSON/HTML much larger, slow down rendering, increase database payload size, and cannot be cached by a CDN like normal image URLs.
+>
+> For production apps, provide an `onUpload` callback that uploads the file to your server, object storage, or image CDN, then return the final public image URL.
+
+## Upload Handler
+
+The upload handler must resolve to a URL string. That URL is inserted into the editor as the image source.
+
+```tsx
+const { editor } = useTiptapEditor({
+  handleImageUpload: {
+    maxLimit: 10,
+    limit: 5,
+    onUpload: async (file, onProgress, abortSignal) => {
+      const formData = new FormData();
+      formData.append("file", file);
+
+      const response = await fetch("/api/upload", {
+        method: "POST",
+        body: formData,
+        signal: abortSignal,
+      });
+
+      onProgress?.({ progress: 100 });
+
+      const data = await response.json();
+      return data.url;
+    },
+  },
+});
+```
+
+## Progress
+
+Call `onProgress?.({ progress })` with a number from `0` to `100` when your upload provider can report progress.
+
+```ts
+onProgress?.({ progress: 50 });
+```
+
+## Cancellation
+
+Pass `abortSignal` to `fetch` or your upload SDK when supported. This lets the editor cancel in-flight uploads when users remove or interrupt an upload.
+
+## Important Unit Note
+
+`maxLimit` is expressed in megabytes, not raw bytes. For a 10 MB limit, pass `maxLimit: 10`.

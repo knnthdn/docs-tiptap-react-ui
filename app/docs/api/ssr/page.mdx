@@ -1,0 +1,47 @@
+﻿# SSR API Notes
+
+Tiptap editors are client-side interactive components. In SSR frameworks like Next.js, render editor screens from client components and disable immediate rendering where needed.
+
+## Client Component
+
+```tsx
+"use client";
+
+import { RichTextEditor, useTiptapEditor } from "tiptap-react-ui";
+
+export function Editor() {
+  const { editor } = useTiptapEditor({
+    immediatelyRender: false,
+  });
+
+  return <RichTextEditor editor={editor} />;
+}
+```
+
+## Key Props
+
+| API | Prop | Recommended SSR Value | Why |
+| --- | --- | --- | --- |
+| `useTiptapEditor` | `immediatelyRender` | `false` | Avoids rendering the editor before the client is ready. |
+| `RichTextEditor` | `immediatelyRenderPreview` | `false` when preview is enabled | Avoids preview hydration mismatch. |
+| `RenderJSON` | `immediatelyRender` | `false` | Defers JSON rendering until client-side mount. |
+
+## Preview Example
+
+```tsx
+<RichTextEditor
+  editor={editor}
+  enablePreview
+  immediatelyRenderPreview={false}
+/>
+```
+
+## RenderJSON Example
+
+```tsx
+<RenderJSON content={content} immediatelyRender={false} />
+```
+
+## RenderHTML Note
+
+`RenderHTML` renders an HTML string and does not create an editable editor instance. If the content comes from users or external systems, pass a sanitizer before rendering.

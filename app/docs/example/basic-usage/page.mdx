@@ -1,0 +1,119 @@
+# Basic Usage
+
+This page shows the smallest useful setup for `tiptap-react-ui` in a normal client-rendered React app and in an SSR framework like Next.js.
+
+## Non-SSR React App
+
+Use this setup for Vite, CRA-style React apps, dashboards, or any page that only renders in the browser.
+
+### Import Styles
+
+Import the package stylesheet once in your app entry file.
+
+```tsx
+// main.tsx or App.tsx
+import "tiptap-react-ui/style.css";
+```
+
+### Editor Component
+
+```tsx
+import { RichTextEditor, useTiptapEditor } from "tiptap-react-ui";
+import type { OnSaveArgs } from "tiptap-react-ui";
+
+export default function EditorPage() {
+  const { editor } = useTiptapEditor({
+    content: "<p>Hello from tiptap-react-ui.</p>",
+  });
+
+  function handleSave(content: OnSaveArgs) {
+    console.log(content.json);
+    console.log(content.html);
+  }
+
+  return (
+    <RichTextEditor
+      editor={editor}
+      enablePreview
+      onSave={handleSave}
+    />
+  );
+}
+```
+
+## SSR / Next.js App Router
+
+Tiptap is interactive and uses browser APIs, so the editor itself must live in a client component. The page can still be rendered by an SSR framework, but the editor component should include `"use client"`.
+
+### Root Layout
+
+Import the package stylesheet once in your root layout or global app entry.
+
+```tsx
+// app/layout.tsx
+import "tiptap-react-ui/style.css";
+
+export default function RootLayout({ children }: { children: React.ReactNode }) {
+  return (
+    <html lang="en">
+      <body>{children}</body>
+    </html>
+  );
+}
+```
+
+### Server Page
+
+```tsx
+// app/editor/page.tsx
+import EditorClient from "./editor-client";
+
+export default function EditorPage() {
+  return <EditorClient />;
+}
+```
+
+### Client Editor
+
+```tsx
+// app/editor/editor-client.tsx
+"use client";
+
+import { RichTextEditor, useTiptapEditor } from "tiptap-react-ui";
+import type { OnSaveArgs } from "tiptap-react-ui";
+
+export default function EditorClient() {
+  const { editor } = useTiptapEditor({
+    content: "<p>Hello from Next.js.</p>",
+    immediatelyRender: false,
+  });
+
+  function handleSave(content: OnSaveArgs) {
+    console.log(content.json);
+    console.log(content.html);
+  }
+
+  return (
+    <RichTextEditor
+      editor={editor}
+      enablePreview
+      immediatelyRenderPreview={false}
+      onSave={handleSave}
+    />
+  );
+}
+```
+
+## SSR Notes
+
+| Setting | Recommended Value | Why |
+| --- | --- | --- |
+| `"use client"` | Required for editor components | The editor uses browser-only APIs. |
+| `immediatelyRender` | `false` | Helps avoid hydration mismatch when creating the editor. |
+| `immediatelyRenderPreview` | `false` when `enablePreview` is used | Defers preview rendering until the client is ready. |
+
+## Related
+
+- [useTiptapEditor API](/docs/api/use-tiptap-editor)
+- [RichTextEditor Component](/docs/components/rich-text-editor)
+- [SSR API Notes](/docs/api/ssr)

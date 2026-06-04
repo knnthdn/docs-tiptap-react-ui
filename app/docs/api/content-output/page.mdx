@@ -1,0 +1,57 @@
+# Content Output API
+
+The editor can produce both Tiptap JSON and HTML. The library exposes this through `getEditorContent()` and the `onSave` callback.
+
+## getEditorContent
+
+```tsx
+const { getEditorContent } = useTiptapEditor();
+
+const { json, html } = getEditorContent();
+```
+
+| Field  | Type                  | Description                                                                                                                                                                                                                                                                       |
+| ------ | --------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `json` | `JSONContent \| null` | Structured Tiptap document returned by `editor.getJSON()`. Use this as the source of truth when content will be edited again, rendered with `RenderJSON`, or stored in a database while preserving nodes, marks, attributes, tables, images, and other editor-specific structure. |
+| `html` | `string \| null`      | Serialized HTML returned by `editor.getHTML()`. Use this when you need display-ready markup for `RenderHTML`, blog/CMS output, search indexing, previews, or integration with systems that do not understand Tiptap JSON.                                                         |
+
+`json` and `html` are `null` only when `getEditorContent()` is called before the editor instance is ready.
+
+## onSave
+
+```tsx
+<RichTextEditor
+  editor={editor}
+  onSave={({ json, html }) => {
+    saveDocument({ json, html });
+  }}
+/>
+```
+
+`onSave` receives non-null content because it only runs when an editor instance exists.
+
+```ts
+type OnSaveArgs = {
+  json: JSONContent;
+  html: string;
+};
+```
+
+## JSON vs HTML
+
+| Format | Best For                                                                        | Tradeoff                                    |
+| ------ | ------------------------------------------------------------------------------- | ------------------------------------------- |
+| JSON   | Re-editing content, preserving document structure, rendering with `RenderJSON`. | Less portable outside Tiptap-aware systems. |
+| HTML   | Blogs, CMS output, emails, external systems, rendering with `RenderHTML`.       | Loses some editor-specific structure.       |
+
+## Recommended Persistence
+
+Store JSON as the source of truth when users will edit the content again. Store HTML alongside it when you need fast display, search indexing, or integration with non-Tiptap systems.
+
+```ts
+type StoredEditorContent = {
+  json: JSONContent;
+  html: string;
+  updatedAt: string;
+};
+```

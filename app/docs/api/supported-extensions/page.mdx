@@ -1,0 +1,30 @@
+﻿# Supported Extensions
+
+`useTiptapEditor` ships with a preconfigured extension set so you can use the editor without wiring Tiptap extensions manually.
+
+## Extension List
+
+| Feature | Extension or Implementation | Notes |
+| --- | --- | --- |
+| Base editing | `StarterKit` | Headings 1-6, paragraphs, bold, italic, lists, blockquote, history, and core nodes. |
+| Placeholder | `Placeholder` | Shows `Write something...` when the editor is empty. |
+| Links | `Link` | Uses `https` as the default protocol, `openOnClick`, and no automatic autolinking. |
+| Code blocks | `CodeBlockLowlight` | Uses `lowlight` and a custom React node view. |
+| Inline code | `CodeInlineLowlight` | Adds inline code highlighting support. |
+| Highlight | `Highlight` | Enables multicolor highlighting. |
+| Text style | `TextStyleKit` | Supports text styling marks used by the toolbar. |
+| Text alignment | `TextAlign` | Applies to headings, paragraphs, and task items. |
+| Task lists | `TaskList` and `TaskItem` | Supports nested task items. |
+| Tables | `NotionTableExtensions` | Provides table behavior and table node views. |
+| Images | Extended `Image` | Supports resizing and left, center, or right alignment. |
+| Image upload | `ImageUploadNode` | Uses `handleImageUpload` options from the hook. |
+| YouTube | Extended `Youtube` | Supports alignment and full-width rendering attributes. |
+| Character count | `CharacterCount` | Powers the word and character count footer. |
+
+## Editor UI Features
+
+The `RichTextEditor` component uses these extensions to power the menubar, bubble menu, YouTube bubble menu, drag handle, preview tabs, and word count footer.
+
+## Custom Extensions
+
+The current public API does not expose an `extensions` prop directly. The package is designed as a pre-built editor. Use the supported hook options for lifecycle, content, rendering, uploads, and editor props.

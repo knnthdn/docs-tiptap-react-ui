@@ -1,0 +1,126 @@
+# RenderJSON
+
+The `RenderJSON` component is a utility for rendering Tiptap JSON content generated from `editor.getJSON()`.
+
+It provides a simple way to display editor content in a read-only format while preserving formatting, code blocks, lists, tables, images, and other supported extensions.
+
+## Import
+
+```tsx
+import { RenderJSON } from "tiptap-react-ui";
+```
+
+## Signature
+
+```tsx
+function RenderHTML(props: RenderJSONProps): JSX.Element;
+```
+
+## Usage
+
+```tsx
+import { RenderJSON } from "tiptap-react-ui";
+
+export default function Post({ content }) {
+  return <RenderJSON content={content} />;
+}
+```
+
+## Using Editor Content
+
+A common workflow is saving content with `editor.getJSON()` or get json content from `getEditorContent` and rendering it later.
+
+```tsx
+const json = editor.getJSON();
+
+<RenderJSON content={json} />;
+```
+
+or
+
+```tsx
+const {editor,getEditorContent} = useTiptapEditor()
+
+<RenderJSON content={getEditorContent().json} />;
+```
+
+## Props
+
+| Prop                | Type          | Default  | Description                                                        |
+| ------------------- | ------------- | -------- | ------------------------------------------------------------------ |
+| `content`           | `JSONContent` | Required | Tiptap JSON document from `editor.getJSON()`.                      |
+| `immediatelyRender` | `boolean`     | `true`   | Controls immediate rendering. Set `false` for SSR-sensitive pages. |
+| `contentClassName`  | `string`      | -        | Classes applied to the outer rendered content container.           |
+| `editorsClassName`  | `string`      | -        | Classes applied to the internal Tiptap editor element.             |
+| `_height`           | `number`      | -        | Optional internal height value in pixels.                          |
+
+## Recommended Storage Shape
+
+```ts
+type StoredDocument = {
+  id: string;
+  content: JSONContent;
+};
+```
+
+## Examples
+
+### Basic Rendering
+
+```tsx
+<RenderJSON content={content} />
+```
+
+### Typography Styling
+
+```tsx
+<RenderJSON
+  content={content}
+  contentClassName="prose dark:prose-invert max-w-none"
+/>
+```
+
+### Next.js / SSR
+
+```tsx
+<RenderJSON content={content} immediatelyRender={false} />
+```
+
+### Custom Layout
+
+```tsx
+<RenderJSON
+  content={content}
+  contentClassName="max-w-4xl mx-auto"
+  editorsClassName="rounded-lg"
+/>
+```
+
+## Common Use Cases
+
+### Blog Posts
+
+```tsx
+<RenderJSON
+  content={post.content}
+  contentClassName="prose lg:prose-lg dark:prose-invert"
+/>
+```
+
+### CMS Content
+
+```tsx
+<RenderJSON content={page.content} />
+```
+
+### Documentation Pages
+
+```tsx
+<RenderJSON content={docs.content} contentClassName="prose max-w-none" />
+```
+
+## Related
+
+- `RichTextEditor` — Create and edit content
+- `editor.getJSON()` — Generate JSON content
+- `RenderHTML` — Render saved HTML content

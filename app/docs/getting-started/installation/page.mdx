@@ -1,0 +1,128 @@
+import { Tabs } from "nextra/components";
+
+# Getting Started
+
+## Installation
+ **Note**: Before installing **tiptap-react-ui**, make sure your project has:
+
+- ✅ [Tailwind CSS](https://tailwindcss.com/docs/installation) installed and configured
+- ✅ [shadcn/ui](https://ui.shadcn.com/create) initialized in your project
+
+<Tabs items={['npm', 'pnpm', 'yarn', 'bun']} storageKey={"tabs-persitent"} >
+  <Tabs.Tab>
+    ```bash copy
+npm install tiptap-react-ui 
+    ```
+  </Tabs.Tab>
+
+<Tabs.Tab>
+  ```bash copy 
+pnpm install tiptap-react-ui
+  ```
+</Tabs.Tab>
+
+<Tabs.Tab>
+  ```bash copy
+yarn add tiptap-react-ui
+  ```
+</Tabs.Tab>
+
+<Tabs.Tab>
+  ```bash copy
+bun add tiptap-react-ui
+  ```
+</Tabs.Tab>
+
+</Tabs>
+
+
+
+### Dependencies
+
+Tiptap React UI depends on the following packages:
+
+<Tabs items={['npm', 'pnpm', 'yarn', 'bun']} storageKey={"tabs-persitent"} >
+  <Tabs.Tab>
+    ```bash copy
+npm install @tiptap/core@latest @tiptap/pm@latest @tiptap/react@latest @tiptap/starter-kit@latest lucide-react
+    ```
+  </Tabs.Tab>
+
+<Tabs.Tab>
+  ```bash copy 
+pnpm install @tiptap/core@latest @tiptap/pm@latest @tiptap/react@latest @tiptap/starter-kit@latest lucide-react
+  ```
+</Tabs.Tab>
+
+<Tabs.Tab>
+  ```bash copy
+yarn add @tiptap/core@latest @tiptap/pm@latest @tiptap/react@latest @tiptap/starter-kit@latest lucide-react
+  ```
+</Tabs.Tab>
+
+<Tabs.Tab>
+  ```bash copy
+bun add @tiptap/core@latest @tiptap/pm@latest @tiptap/react@latest @tiptap/starter-kit@latest lucide-react
+  ```
+</Tabs.Tab>
+
+</Tabs>
+
+
+## Basic Setup
+
+
+
+### 1. Create an editor instance
+
+Use the `useTiptapEditor` hook in your component:
+
+```jsx
+import { useTiptapEditor } from 'tiptap-react-ui';
+
+export default function MyEditor() {
+  const {editor} = useTiptapEditor();
+
+  return (
+    // Your editor component here
+  );
+}
+```
+**Important**: When using **Next.js** or **React Server Components (RSC)**, you must set `immediatelyRender: false` in your editor configuration. This ensures the editor is rendered on the client only and helps avoid hydration errors.
+
+ex: `useTiptapEditor({immediatelyRender: false}){:jsx}`
+
+### 2. Render the editor
+
+```jsx copy
+import { RichTextEditor, useTiptapEditor } from "tiptap-react-ui";
+import type {OnSaveArgs} from "tiptap-react-ui";
+import "tiptap-react-ui/style.css"; // import rich text editor style
+
+export default function MyEditor() {
+  const {editor} = useTiptapEditor();
+
+  const handleSave = (content:OnSaveArgs) => {
+    const {json,html} = content
+    console.log("Saved content(JSON):", json);
+    console.log("Saved content(HTML):", html);
+
+    // ...your code 
+  };
+
+  return (
+    <RichTextEditor
+      editor={editor}
+      onSave={handleSave}
+      enablePreview={true}
+      immediatelyRenderPreview={false} // You must set this to false if you're using nextjs or rsc and enablePreview={true}
+      enableWordCount={true}
+    />
+  );
+}
+```
+
+## Next Step
+
+- Read the [API Reference](https://tiptap.dev/docs/editor/api/editor) for detailed configuration options
+

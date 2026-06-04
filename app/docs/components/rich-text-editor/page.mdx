@@ -1,0 +1,81 @@
+# RichTextEditor
+
+`RichTextEditor` renders the complete editing interface around an editor instance created by `useTiptapEditor`.
+
+## Import
+
+```tsx
+import { RichTextEditor } from "tiptap-react-ui";
+```
+
+## Signature
+
+```tsx
+function RichTextEditor(props: RichTextEditorProps): JSX.Element | null;
+```
+
+## Basic Usage
+
+```tsx
+import { RichTextEditor, useTiptapEditor } from "tiptap-react-ui";
+
+export function Editor() {
+  const { editor } = useTiptapEditor({ immediatelyRender: false });
+
+  return <RichTextEditor editor={editor} />;
+}
+```
+
+## Props
+
+| Prop                       | Type                        | Default  | Description                                                                             |
+| -------------------------- | --------------------------- | -------- | --------------------------------------------------------------------------------------- |
+| `editor`                   | `Editor`                    | Required | Editor instance returned by `useTiptapEditor`.                                          |
+| `onSave`                   | `(val: OnSaveArgs) => void` | -        | Adds a save action to the toolbar and receives JSON plus HTML.                          |
+| `enablePreview`            | `boolean`                   | `false`  | Enables Editor and Preview tabs.                                                        |
+| `enableWordCount`          | `boolean`                   | `true`   | Shows word and character count footer.                                                  |
+| `immediatelyRenderPreview` | `boolean`                   | `true`   | Controls immediate rendering for preview output. Use `false` for SSR-sensitive screens. |
+| `className`                | `string`                    | -        | Classes applied to the editor content wrapper.                                          |
+
+## Save Payload
+
+```ts
+type OnSaveArgs = {
+  json: JSONContent;
+  html: string;
+};
+```
+
+```tsx
+<RichTextEditor
+  editor={editor}
+  onSave={({ json, html }) => {
+    console.log(json);
+    console.log(html);
+  }}
+/>
+```
+
+## Preview Mode
+
+When `enablePreview` is true, the component adds tabs for editing and previewing generated content.
+
+```tsx
+<RichTextEditor
+  editor={editor}
+  enablePreview
+  immediatelyRenderPreview={false}
+/>
+```
+
+## Word Count
+
+Word and character count are enabled by default.
+
+```tsx
+<RichTextEditor editor={editor} enableWordCount={false} />
+```
+
+## Null Editor Behavior
+
+The component returns `null` if the editor instance is not ready. This lets you pass the hook result directly without building a loading state unless your UI needs one.

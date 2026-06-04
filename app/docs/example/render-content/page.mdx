@@ -1,0 +1,272 @@
+# Render Content
+
+This example shows how to render editor output with `RenderJSON` and `RenderHTML`.
+
+Use `RenderJSON` for content from `editor.getJSON()` or `getEditorContent().json`. Use `RenderHTML` for content from `editor.getHTML()` or `getEditorContent().html`.
+
+## Import Styles
+
+Import the package stylesheet once in your app entry, root layout, or global CSS entry.
+
+```tsx
+import "tiptap-react-ui/style.css";
+```
+
+## RenderJSON
+
+`RenderJSON` renders a Tiptap JSON document.
+
+```tsx
+import { RenderJSON } from "tiptap-react-ui";
+import type { JSONContent } from "@tiptap/core";
+
+const content: JSONContent = {
+  type: "doc",
+  content: [
+    {
+      type: "heading",
+      attrs: { level: 2 },
+      content: [{ type: "text", text: "Rendered from JSON" }],
+    },
+    {
+      type: "paragraph",
+      content: [
+        {
+          type: "text",
+          text: "This keeps the original Tiptap document structure.",
+        },
+      ],
+    },
+  ],
+};
+
+export default function JsonPreview() {
+  return (
+    <RenderJSON
+      content={content}
+      contentClassName="prose dark:prose-invert max-w-none"
+    />
+  );
+}
+```
+
+## RenderHTML
+
+`RenderHTML` renders an HTML string.
+
+```tsx
+import { RenderHTML } from "tiptap-react-ui";
+
+const content = `
+  <h2>Rendered from HTML</h2>
+  <p>This content is display-ready HTML from the editor.</p>
+`;
+
+export default function HtmlPreview() {
+  return (
+    <RenderHTML
+      content={content}
+      className="prose dark:prose-invert max-w-none"
+    />
+  );
+}
+```
+
+## Render From getEditorContent
+
+Use `getEditorContent()` when you want to render the current editor content somewhere else in your UI.
+
+```tsx
+"use client";
+
+import { useState } from "react";
+import { RichTextEditor, RenderHTML, RenderJSON, useTiptapEditor } from "tiptap-react-ui";
+import type { JSONContent } from "@tiptap/core";
+
+type PreviewContent = {
+  json: JSONContent;
+  html: string;
+};
+
+export default function EditorWithPreview() {
+  const [preview, setPreview] = useState<PreviewContent | null>(null);
+
+  const { editor, getEditorContent } = useTiptapEditor({
+    content: "<p>Write something and render it below.</p>",
+    immediatelyRender: false,
+  });
+
+  function renderCurrentContent() {
+    const { json, html } = getEditorContent();
+
+    if (!json || !html) return;
+
+    setPreview({ json, html });
+  }
+
+  return (
+    <div className="space-y-8">
+      <RichTextEditor editor={editor} />
+
+      <button type="button" onClick={renderCurrentContent}>
+        Render current content
+      </button>
+
+      {preview && (
+        <div className="space-y-8">
+          <RenderJSON
+            content={preview.json}
+            immediatelyRender={false}
+            contentClassName="prose dark:prose-invert max-w-none"
+          />
+
+          <RenderHTML
+            content={preview.html}
+            className="prose dark:prose-invert max-w-none"
+          />
+        </div>
+      )}
+    </div>
+  );
+}
+```
+
+## Render Fetched Database Content
+
+When content is already saved in your database, fetch the stored JSON and HTML, then pass them into `RenderJSON` and `RenderHTML`.
+
+```tsx
+"use client";
+
+import { useEffect, useState } from "react";
+import { RenderHTML, RenderJSON } from "tiptap-react-ui";
+import type { JSONContent } from "@tiptap/core";
+
+type SavedPost = {
+  id: string;
+  title: string;
+  contentJson: JSONContent;
+  contentHtml: string;
+};
+
+export default function PostPreview({ postId }: { postId: string }) {
+  const [post, setPost] = useState<SavedPost | null>(null);
+
+  useEffect(() => {
+    async function loadPost() {
+      const response = await fetch(`/api/posts/${postId}`);
+      const data = await response.json();
+      setPost(data);
+    }
+
+    loadPost();
+  }, [postId]);
+
+  if (!post) return null;
+
+  return (
+    <article className="space-y-8">
+      <h1>{post.title}</h1>
+
+      <RenderJSON
+        content={post.contentJson}
+        immediatelyRender={false}
+        contentClassName="prose dark:prose-invert max-w-none"
+      />
+
+      <RenderHTML
+        content={post.contentHtml}
+        className="prose dark:prose-invert max-w-none"
+      />
+    </article>
+  );
+}
+```
+
+## Next.js Server Fetch With Client Renderer
+
+In the App Router, you can fetch database content in a server page and render it in a client component.
+
+```tsx
+// app/posts/[id]/page.tsx
+import PostContent from "./post-content";
+
+export default async function PostPage({ params }: { params: { id: string } }) {
+  const post = await getPostFromDatabase(params.id);
+
+  return (
+    <PostContent
+      title={post.title}
+      json={post.contentJson}
+      html={post.contentHtml}
+    />
+  );
+}
+```
+
+```tsx
+// app/posts/[id]/post-content.tsx
+"use client";
+
+import { RenderHTML, RenderJSON } from "tiptap-react-ui";
+import type { JSONContent } from "@tiptap/core";
+
+export default function PostContent({
+  title,
+  json,
+  html,
+}: {
+  title: string;
+  json: JSONContent;
+  html: string;
+}) {
+  return (
+    <article className="space-y-8">
+      <h1>{title}</h1>
+
+      <RenderJSON
+        content={json}
+        immediatelyRender={false}
+        contentClassName="prose dark:prose-invert max-w-none"
+      />
+
+      <RenderHTML
+        content={html}
+        className="prose dark:prose-invert max-w-none"
+      />
+    </article>
+  );
+}
+```
+
+## Sanitize HTML
+
+If the HTML can be changed by users or external systems, sanitize it before rendering.
+
+```tsx
+import DOMPurify from "dompurify";
+import { RenderHTML } from "tiptap-react-ui";
+
+export function SafeHtmlPreview({ html }: { html: string }) {
+  return (
+    <RenderHTML
+      content={html}
+      sanitize={(value) => DOMPurify.sanitize(value)}
+      className="prose dark:prose-invert max-w-none"
+    />
+  );
+}
+```
+
+## Choosing a Renderer
+
+| Renderer | Input | Best For |
+| --- | --- | --- |
+| `RenderJSON` | `JSONContent` | Re-editable content, preserving Tiptap structure, documents with editor-specific nodes. |
+| `RenderHTML` | `string` | Display-ready content, CMS/blog pages, external integrations, sanitized user content. |
+
+## Related
+
+- [RenderJSON Component](/docs/components/render-json)
+- [RenderHTML Component](/docs/components/render-html)
+- [Content Output API](/docs/api/content-output)
