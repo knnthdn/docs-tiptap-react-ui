@@ -1,40 +1,42 @@
 # tiptap-react-ui
 
-A modern, customizable React UI library built on [Tiptap](https://tiptap.dev) - a headless, framework-agnostic rich text editor.
+A modern React UI library built on [Tiptap](https://tiptap.dev) for rich text editing, Notion-like writing surfaces, and read-only content rendering.
 
 ## Features
 
-- 🎨 **Beautiful Components** - Pre-built UI components for rich text editing
-- 🛠️ **Fully Customizable** - Tailwind CSS powered, extend with your own styles
-- ⚡ **Lightweight** - Minimal dependencies, optimized for performance
-- 📱 **Responsive** - Works seamlessly on desktop and mobile
-- 🎯 **TypeScript Ready** - Full type safety out of the box
-- 🔌 **Tiptap Powered** - Access to all Tiptap extensions and features
+- **Beautiful editor UI** - Pre-built `RichTextEditor` and `NotionEditor` components.
+- **No app-level UI setup required** - Works without Tailwind CSS or shadcn/ui in the consuming app.
+- **Built-in styles** - Import `tiptap-react-ui/style.css` once in your app entry or root layout.
+- **TypeScript ready** - Public types for editor props, save payloads, themes, and modes.
+- **Tiptap powered** - Uses a preconfigured Tiptap extension set for common rich text workflows.
+- **Content rendering** - Render saved editor JSON with `RenderJSON` or saved HTML with `RenderHTML`.
 
 ## Quick Start
 
-**Note**: Before installing **tiptap-react-ui**, make sure your project has:
-
-- ✅ [Tailwind CSS](https://tailwindcss.com/docs/installation) installed and configured
-- ✅ [shadcn/ui](https://ui.shadcn.com/create) initialized in your project
-
 ```bash
-npm install tiptap-react-ui @tiptap/core@latest @tiptap/pm@latest @tiptap/react@latest @tiptap/starter-kit@latest
+npm install tiptap-react-ui @tiptap/core@3 @tiptap/pm@3 @tiptap/react@3
+```
+
+Import the stylesheet once in your app entry, root layout, or global CSS entry.
+
+```tsx
+import "tiptap-react-ui/style.css";
 ```
 
 ```tsx
-import { RichTextEditor } from "tiptap-react-ui";
-import "tiptap-react-ui/style.css";
+"use client";
+
+import { RichTextEditor, useTiptapEditor } from "tiptap-react-ui";
 
 export default function App() {
-  const { editor } = useTiptapEditor();
+  const { editor, isEditorLoading } = useTiptapEditor();
 
-  return <RichTextEditor enablePreview />;
+  if (isEditorLoading) return null;
+
+  return <RichTextEditor editor={editor} enablePreview />;
 }
 ```
 
 ## Documentation
 
 Visit the [official documentation](https://docs-tiptap-react-ui.vercel.app) for detailed guides, examples, and API reference.
-
-**tiptap-react-ui** - A React UI library for the Tiptap editor.

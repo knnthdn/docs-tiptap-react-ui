@@ -1,6 +1,6 @@
-﻿# SSR API Notes
+# SSR API Notes
 
-Tiptap editors are client-side interactive components. In SSR frameworks like Next.js, render editor screens from client components and disable immediate rendering where needed.
+Tiptap editors are client-side interactive components. In SSR frameworks like Next.js, render editor screens from client components. The package defaults immediate rendering to `false` for editor setup, JSON rendering, and preview rendering to reduce hydration mismatch risk.
 
 ## Client Component
 
@@ -10,9 +10,9 @@ Tiptap editors are client-side interactive components. In SSR frameworks like Ne
 import { RichTextEditor, useTiptapEditor } from "tiptap-react-ui";
 
 export function Editor() {
-  const { editor } = useTiptapEditor({
-    immediatelyRender: false,
-  });
+  const { editor, isEditorLoading } = useTiptapEditor();
+
+  if (isEditorLoading) return null;
 
   return <RichTextEditor editor={editor} />;
 }
@@ -22,9 +22,10 @@ export function Editor() {
 
 | API | Prop | Recommended SSR Value | Why |
 | --- | --- | --- | --- |
-| `useTiptapEditor` | `immediatelyRender` | `false` | Avoids rendering the editor before the client is ready. |
-| `RichTextEditor` | `immediatelyRenderPreview` | `false` when preview is enabled | Avoids preview hydration mismatch. |
-| `RenderJSON` | `immediatelyRender` | `false` | Defers JSON rendering until client-side mount. |
+| `useTiptapEditor` | `immediatelyRender` | `false` by default | Avoids rendering the editor before the client is ready. |
+| `useTiptapEditor` | `isEditorLoading` | Check before rendering editor UI | Lets you show a loading state while the editor instance is created. |
+| `RichTextEditor` | `immediatelyRenderPreview` | `false` by default | Avoids preview hydration mismatch. |
+| `RenderJSON` | `immediatelyRender` | `false` by default | Defers JSON rendering until client-side mount. |
 
 ## Preview Example
 
@@ -32,15 +33,16 @@ export function Editor() {
 <RichTextEditor
   editor={editor}
   enablePreview
-  immediatelyRenderPreview={false}
 />
 ```
 
 ## RenderJSON Example
 
 ```tsx
-<RenderJSON content={content} immediatelyRender={false} />
+<RenderJSON content={content} />
 ```
+
+For editor-generated saved content, prefer JSON and render it with `RenderJSON`. Use HTML only when you specifically need serialized markup.
 
 ## RenderHTML Note
 

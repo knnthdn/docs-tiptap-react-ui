@@ -1,10 +1,12 @@
-﻿# Styling API
+# Styling API
 
-The package includes editor styles and accepts class name props for layout and typography customization.
+The package includes compiled editor styles and exposes class name props for layout, height, scroll behavior, typography, and wrapper customization.
+
+Styling can be a little confusing at first because the library separates the page wrapper, the editor shell, and the editable ProseMirror document. That separation is intentional: it keeps the editor customizable without making every app accept the same spacing, scrolling, or surface design.
 
 ## Import CSS
 
-Import the package stylesheet once in your app.
+Import the package stylesheet once in your root layout, app entry, or app-level stylesheet.
 
 ```tsx
 import "tiptap-react-ui/style.css";
@@ -16,49 +18,151 @@ Alternative path:
 import "tiptap-react-ui/dist/index.css";
 ```
 
+`tiptap-react-ui` ships compiled CSS. Consumer apps do not need Tailwind CSS or shadcn/ui configured for the editor UI to work.
+
 ## Class Name Props
 
 | API | Prop | Applied To |
 | --- | --- | --- |
-| `useTiptapEditor` | `className` | ProseMirror editor element. |
-| `RichTextEditor` | `className` | Editor content wrapper passed to `EditorContent`. |
-| `RenderJSON` | `contentClassName` | Rendered content container. |
-| `RenderJSON` | `editorsClassName` | Internal read-only editor element. |
+| `useTiptapEditor` | `className` | The editable ProseMirror document element. |
+| `RichTextEditor` | `wrapperClassName` | The outer `.tr-editor` wrapper, including preview tabs, mode toggle, preview panel, and editor shell. |
+| `RichTextEditor` | `editorClassName` | The `.tr-editor-shell` containing the menubar, editor content wrapper, drag handle, and word count footer. |
+| `NotionEditor` | `className` | The Notion editor wrapper around the document surface, slash menu, and block controls. |
+| `RenderJSON` | `className` | The root `.tr-editor` read-only JSON renderer wrapper. |
 | `RenderHTML` | `className` | HTML output wrapper. |
 
-## useTiptapEditor Classes
+`RenderJSON` and `RenderHTML` also accept `mode` for light, dark, or system renderer output. They do not accept a `theme` prop.
 
-The hook adds base classes to the editor element:
+## RichTextEditor Styling Layers
 
-```txt
-tiptap text-base min-h-50 max-h-[60vh] overflow-y-auto
-```
+`RichTextEditor` styling is split across three layers.
 
-In edit mode, it also adds padding, border, and focus styles. When `isPreview` is true, those edit-mode classes are omitted.
-
-## Examples
+| Layer | Use | Example |
+| --- | --- | --- |
+| `useTiptapEditor({ className })` | Style the actual editable text document. | `"min-h-[420px] overflow-y-auto p-6"` |
+| `RichTextEditor.wrapperClassName` | Style the whole editor placement and wrapper. | `"mx-auto w-full max-w-5xl py-6"` |
+| `RichTextEditor.editorClassName` | Style the editor shell/chrome. | `"rounded-xl border bg-background shadow-sm"` |
 
 ```tsx
 const { editor } = useTiptapEditor({
-  className: "min-h-[420px] max-h-[80vh] rounded-md",
+  className: "min-h-[420px] max-h-[70vh] overflow-y-auto p-6",
 });
+
+return (
+  <RichTextEditor
+    editor={editor}
+    wrapperClassName="mx-auto w-full max-w-5xl"
+    editorClassName="rounded-xl border bg-background shadow-sm"
+  />
+);
 ```
+
+In this example:
+
+| Class | Result |
+| --- | --- |
+| `min-h-[420px] max-h-[70vh] overflow-y-auto p-6` on `useTiptapEditor` | Controls the editable document area where text is typed. |
+| `mx-auto w-full max-w-5xl` on `wrapperClassName` | Sizes and positions the complete editor UI. |
+| `rounded-xl border bg-background shadow-sm` on `editorClassName` | Styles the editor shell containing the menubar, document, and footer. |
+
+## useTiptapEditor Defaults
+
+The hook applies only minimal base classes to the editor element:
+
+```txt
+tiptap text-left text-base focus:outline-0
+```
+
+It does not impose minimum height, maximum height, scrolling, padding, borders, or background styles. Add those through `className` when your editable document needs them.
+
+## NotionEditor Layout
+
+`NotionEditor` grows naturally with its content and does not reserve a minimum canvas height by default.
+
+```tsx
+const { editor } = useTiptapEditor({
+  className: "px-4",
+});
+
+return (
+  <NotionEditor
+    editor={editor}
+    className="mx-auto min-h-[32rem] max-w-3xl bg-white"
+  />
+);
+```
+
+For full-height Notion-style screens, put the height on the wrapper and constrain the ProseMirror element through `useTiptapEditor`.
+
+```tsx
+const { editor } = useTiptapEditor({
+  className: "max-h-full overflow-y-auto",
+});
+
+return <NotionEditor editor={editor} className="h-screen" />;
+```
+
+## Full Parent Height
+
+For a full-height RichTextEditor, give the outer wrapper and editor shell a real height, then make the editable document area use `max-h-full` or another explicit scroll constraint.
+
+```tsx
+const { editor } = useTiptapEditor({
+  className: "max-h-full overflow-y-auto p-6",
+});
+
+return (
+  <div className="h-screen">
+    <RichTextEditor
+      editor={editor}
+      wrapperClassName="h-full"
+      editorClassName="h-full"
+    />
+  </div>
+);
+```
+
+## RenderJSON Styling
+
+`RenderJSON.className` applies to the root `.tr-editor` wrapper. Use it for layout, typography, background, spacing, and theme context.
 
 ```tsx
 <RenderJSON
   content={content}
-  contentClassName="prose dark:prose-invert max-w-none"
-  editorsClassName="min-h-[300px]"
+  mode="dark"
+  className="prose dark:prose-invert max-w-none"
 />
 ```
+
+`RenderJSON` no longer exposes public `contentClassName`, `editorsClassName`, or `_height` props. The internal read-only editor uses safe defaults:
+
+```txt
+max-h-none overflow-y-visible bg-transparent
+```
+
+That means the rendered document grows with content, stays transparent, and adopts the wrapper styling from `className`.
+
+## RenderHTML Styling
 
 ```tsx
 <RenderHTML
   content={html}
+  mode="dark"
   className="prose lg:prose-lg dark:prose-invert max-w-none"
 />
 ```
 
 ## Styling Notes
 
-Use `className` props for layout and typography. Use the package stylesheet for toolbar, editor, upload, drag handle, image, table, and task list styles.
+Use the package stylesheet for toolbar, editor, upload, drag handle, image, table, task list, slash command, Notion editor, and theme styles.
+
+As a rule of thumb:
+
+| Goal | Use |
+| --- | --- |
+| Change full RichTextEditor placement, width, margin, or full-editor height | `RichTextEditor.wrapperClassName` |
+| Change RichTextEditor shell border, radius, shadow, surface, or shell height | `RichTextEditor.editorClassName` |
+| Change editable area height, max-height, scroll, padding, border, or typography | `useTiptapEditor.className` |
+| Change full NotionEditor placement, width, margin, background, or height | `NotionEditor.className` |
+| Change rendered read-only JSON layout, typography, spacing, or background | `RenderJSON.className` |
+| Change rendered HTML output styles | `RenderHTML.className` |

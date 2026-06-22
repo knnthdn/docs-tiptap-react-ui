@@ -6,6 +6,7 @@ const meta: MetaRecord = {
   },
   "basic-usage": "Basic Usage",
   "render-content": "Render Content",
+  darkmode: 'Darkmode'
 };
 
 export default meta;

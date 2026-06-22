@@ -2,6 +2,8 @@
 
 This page shows the smallest useful setup for `tiptap-react-ui` in a normal client-rendered React app and in an SSR framework like Next.js.
 
+`tiptap-react-ui` ships its own compiled styles, so the consuming app does not need Tailwind CSS or shadcn/ui configured for the editor UI to work.
+
 ## Non-SSR React App
 
 Use this setup for Vite, CRA-style React apps, dashboards, or any page that only renders in the browser.
@@ -22,7 +24,7 @@ import { RichTextEditor, useTiptapEditor } from "tiptap-react-ui";
 import type { OnSaveArgs } from "tiptap-react-ui";
 
 export default function EditorPage() {
-  const { editor } = useTiptapEditor({
+  const { editor, isEditorLoading } = useTiptapEditor({
     content: "<p>Hello from tiptap-react-ui.</p>",
   });
 
@@ -30,6 +32,8 @@ export default function EditorPage() {
     console.log(content.json);
     console.log(content.html);
   }
+
+  if (isEditorLoading) return null;
 
   return (
     <RichTextEditor
@@ -83,9 +87,8 @@ import { RichTextEditor, useTiptapEditor } from "tiptap-react-ui";
 import type { OnSaveArgs } from "tiptap-react-ui";
 
 export default function EditorClient() {
-  const { editor } = useTiptapEditor({
+  const { editor, isEditorLoading } = useTiptapEditor({
     content: "<p>Hello from Next.js.</p>",
-    immediatelyRender: false,
   });
 
   function handleSave(content: OnSaveArgs) {
@@ -93,11 +96,12 @@ export default function EditorClient() {
     console.log(content.html);
   }
 
+  if (isEditorLoading) return null;
+
   return (
     <RichTextEditor
       editor={editor}
       enablePreview
-      immediatelyRenderPreview={false}
       onSave={handleSave}
     />
   );
@@ -109,8 +113,9 @@ export default function EditorClient() {
 | Setting | Recommended Value | Why |
 | --- | --- | --- |
 | `"use client"` | Required for editor components | The editor uses browser-only APIs. |
-| `immediatelyRender` | `false` | Helps avoid hydration mismatch when creating the editor. |
-| `immediatelyRenderPreview` | `false` when `enablePreview` is used | Defers preview rendering until the client is ready. |
+| `isEditorLoading` | Use before rendering editor UI | Lets you render a loading state while the editor instance is created. |
+| `immediatelyRender` | `false` by default | Helps avoid hydration mismatch when creating the editor. |
+| `immediatelyRenderPreview` | `false` by default | Defers preview rendering until the client is ready. |
 
 ## Related
 

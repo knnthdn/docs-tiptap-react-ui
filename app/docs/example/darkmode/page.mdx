@@ -1,0 +1,114 @@
+﻿# Dark Mode
+
+`RichTextEditor`, `RenderJSON`, and `RenderHTML` support `mode="light"`, `mode="dark"`, and `mode="system"`.
+
+`NotionEditor` also accepts `mode`, but it does not support the RichTextEditor `theme` prop or editor mode toggle.
+
+## RichTextEditor Mode
+
+Use `mode` when you want to control the editor theme directly.
+
+```tsx
+import { RichTextEditor, useTiptapEditor } from "tiptap-react-ui";
+
+export function DarkEditor() {
+  const { editor, isEditorLoading } = useTiptapEditor();
+
+  if (isEditorLoading) return null;
+
+  return <RichTextEditor editor={editor} mode="dark" />;
+}
+```
+
+Available modes:
+
+```ts
+type RichTextEditorMode = "light" | "dark" | "system";
+```
+
+Use `system` when you want the editor to follow the user's OS preference.
+
+```tsx
+<RichTextEditor editor={editor} mode="system" />
+```
+
+## RichTextEditor Mode Toggle
+
+Use `enableModeToggle` to show a light, dark, and system mode switch inside the editor header.
+
+```tsx
+import { RichTextEditor, useTiptapEditor } from "tiptap-react-ui";
+
+export function EditorWithModeToggle() {
+  const { editor, isEditorLoading } = useTiptapEditor({
+    className: "max-h-[70vh] overflow-y-auto",
+  });
+
+  if (isEditorLoading) return null;
+
+  return (
+    <RichTextEditor
+      editor={editor}
+      theme="violet"
+      enableModeToggle
+      enablePreview
+    />
+  );
+}
+```
+
+When `enableModeToggle` is enabled, the editor stores the selected mode and restores it on reload.
+
+## RenderJSON Dark Mode
+
+Use `mode` when rendering saved JSON content on a light, dark, or system-themed surface.
+
+```tsx
+import { RenderJSON } from "tiptap-react-ui";
+
+export function DarkJsonContent({ content }) {
+  return <RenderJSON content={content} mode="dark" />;
+}
+```
+
+For editor-generated saved content, `RenderJSON` is recommended because it preserves Tiptap document structure.
+
+## RenderHTML Dark Mode
+
+Use `mode` when rendering saved HTML content.
+
+```tsx
+import { RenderHTML } from "tiptap-react-ui";
+
+export function DarkHtmlContent({ html }) {
+  return <RenderHTML content={html} mode="dark" />;
+}
+```
+
+Use `RenderHTML` when you specifically need serialized HTML output or sanitized user-generated markup.
+
+## NotionEditor Mode
+
+```tsx
+import { NotionEditor, useTiptapEditor } from "tiptap-react-ui";
+
+export function DarkNotionEditor() {
+  const { editor, isEditorLoading } = useTiptapEditor();
+
+  if (isEditorLoading) return null;
+
+  return <NotionEditor editor={editor} mode="dark" />;
+}
+```
+
+## Global Dark Mode
+
+Use `mode="system"` when the editor or renderer should follow your app-level dark mode preference, but in default the Editors adopt to global darkmode
+
+```tsx
+<RichTextEditor editor={editor} mode="system" />
+<RenderJSON content={json} mode="system" />
+<RenderHTML content={html} mode="system" />
+```
+
+Use global dark mode when the editor should always match the rest of the app. Use `mode` or `enableModeToggle` when you want editor-level control.

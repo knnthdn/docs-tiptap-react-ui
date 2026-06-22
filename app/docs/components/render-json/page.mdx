@@ -1,8 +1,8 @@
 # RenderJSON
 
-The `RenderJSON` component is a utility for rendering Tiptap JSON content generated from `editor.getJSON()`.
+The `RenderJSON` component renders Tiptap JSON content generated from `editor.getJSON()` or `getEditorContent().json`.
 
-It provides a simple way to display editor content in a read-only format while preserving formatting, code blocks, lists, tables, images, and other supported extensions.
+It is the recommended renderer for saved editor content because it preserves the original Tiptap document structure, including editor-specific nodes such as tables, images, task lists, and code blocks.
 
 ## Import
 
@@ -13,7 +13,7 @@ import { RenderJSON } from "tiptap-react-ui";
 ## Signature
 
 ```tsx
-function RenderHTML(props: RenderJSONProps): JSX.Element;
+function RenderJSON(props: RenderJSONProps): JSX.Element | null;
 ```
 
 ## Usage
@@ -28,7 +28,7 @@ export default function Post({ content }) {
 
 ## Using Editor Content
 
-A common workflow is saving content with `editor.getJSON()` or get json content from `getEditorContent` and rendering it later.
+A common workflow is saving content with `editor.getJSON()` or `getEditorContent().json` and rendering it later.
 
 ```tsx
 const json = editor.getJSON();
@@ -39,22 +39,44 @@ const json = editor.getJSON();
 or
 
 ```tsx
-const {editor,getEditorContent} = useTiptapEditor()
+const { getEditorContent } = useTiptapEditor();
 
 <RenderJSON content={getEditorContent().json} />;
 ```
 
 ## Props
 
-| Prop                | Type          | Default  | Description                                                        |
-| ------------------- | ------------- | -------- | ------------------------------------------------------------------ |
-| `content`           | `JSONContent` | Required | Tiptap JSON document from `editor.getJSON()`.                      |
-| `immediatelyRender` | `boolean`     | `true`   | Controls immediate rendering. Set `false` for SSR-sensitive pages. |
-| `contentClassName`  | `string`      | -        | Classes applied to the outer rendered content container.           |
-| `editorsClassName`  | `string`      | -        | Classes applied to the internal Tiptap editor element.             |
-| `_height`           | `number`      | -        | Optional internal height value in pixels.                          |
+| Prop                      | Type                            | Default    | Description                                                                |
+| ------------------------- | ------------------------------- | ---------- | -------------------------------------------------------------------------- |
+| `content`                 | `JSONContent`                   | Required   | Tiptap JSON document from `editor.getJSON()`.                              |
+| `immediatelyRender`       | `boolean`                       | `false`    | Controls immediate rendering. Defaults to `false` for SSR-sensitive pages. |
+| `className`               | `string`                        | -          | Classes applied to the root `.tr-editor` rendered output wrapper.          |
+| `mode`                    | `"light" \| "dark" \| "system"` | `"system"` | Applies light or dark mode styles to the rendered output.                  |
+| `enableTableOfContents`   | `boolean`                       | `false`    | Shows a generated table of contents beside rendered JSON content.          |
+| `tableOfContentsPosition` | `"left" \| "right"`             | `"right"`  | Controls which side the rendered JSON TOC appears on.                      |
+
+## Styling
+
+`className` applies to the root `.tr-editor` wrapper. Use it for layout, typography, spacing, background, and theme context.
+
+```tsx
+<RenderJSON
+  content={content}
+  className="prose dark:prose-invert max-w-none"
+/>
+```
+
+`RenderJSON` no longer exposes public `contentClassName`, `editorsClassName`, or `_height` props. The internal read-only editor uses fixed safe defaults:
+
+```txt
+max-h-none overflow-y-visible bg-transparent
+```
+
+This lets the rendered content grow naturally, keep overflow visible, and adopt the visual styling from the root wrapper.
 
 ## Recommended Storage Shape
+
+Store JSON as the source of truth when users will edit the content again or when you want the most faithful read-only rendering. Store HTML alongside it only when you need display-ready markup for search indexing, email, CMS integrations, or external systems.
 
 ```ts
 type StoredDocument = {
@@ -76,14 +98,34 @@ type StoredDocument = {
 ```tsx
 <RenderJSON
   content={content}
-  contentClassName="prose dark:prose-invert max-w-none"
+  className="prose dark:prose-invert max-w-none"
 />
 ```
+
+### Dark Mode Rendering
+
+```tsx
+<RenderJSON content={content} mode="dark" />
+```
+
+Use `mode="system"` when the renderer should follow your app's global dark-mode scope.
+
+### Table Of Contents
+
+```tsx
+<RenderJSON
+  content={content}
+  enableTableOfContents
+  tableOfContentsPosition="right"
+/>
+```
+
+The TOC is generated from the rendered Tiptap JSON state. It is not available in `RenderHTML` because raw serialized HTML does not include the live Tiptap TOC state.
 
 ### Next.js / SSR
 
 ```tsx
-<RenderJSON content={content} immediatelyRender={false} />
+<RenderJSON content={content} />
 ```
 
 ### Custom Layout
@@ -91,8 +133,7 @@ type StoredDocument = {
 ```tsx
 <RenderJSON
   content={content}
-  contentClassName="max-w-4xl mx-auto"
-  editorsClassName="rounded-lg"
+  className="mx-auto max-w-4xl rounded-lg bg-background p-6"
 />
 ```
 
@@ -101,10 +142,7 @@ type StoredDocument = {
 ### Blog Posts
 
 ```tsx
-<RenderJSON
-  content={post.content}
-  contentClassName="prose lg:prose-lg dark:prose-invert"
-/>
+<RenderJSON content={post.content} />
 ```
 
 ### CMS Content
@@ -116,11 +154,11 @@ type StoredDocument = {
 ### Documentation Pages
 
 ```tsx
-<RenderJSON content={docs.content} contentClassName="prose max-w-none" />
+<RenderJSON content={docs.content} />
 ```
 
 ## Related
 
-- `RichTextEditor` — Create and edit content
-- `editor.getJSON()` — Generate JSON content
-- `RenderHTML` — Render saved HTML content
+- `RichTextEditor` - Create and edit content
+- `editor.getJSON()` - Generate JSON content
+- `RenderHTML` - Render saved HTML content

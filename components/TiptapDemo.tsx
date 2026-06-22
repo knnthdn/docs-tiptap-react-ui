@@ -1,21 +1,17 @@
 "use client";
 
-import { useMemo } from "react";
-
 import { useTiptapEditor, RichTextEditor } from "tiptap-react-ui";
-import "tiptap-react-ui/style.css";
+import content from "../public/sample_content.json";
 
 export default function TiptapDemo() {
-  const content = useMemo(() => {
-    if (typeof window === "undefined") return;
-    const savedContent = localStorage.getItem("editorContent-demo");
-    return savedContent ? JSON.parse(savedContent) : "";
-  }, []);
+  // const content = useMemo(() => {
+  //   if (typeof window === "undefined") return;
+  //   const savedContent = localStorage.getItem("editorContent-demo");
+  //   return savedContent ? JSON.parse(savedContent) : "";
+  // }, []);
 
   const { editor } = useTiptapEditor({
     content: content,
-    immediatelyRender: false,
-    className: "max-h-[80vh]",
   });
 
   // function onSave() {
@@ -28,11 +24,7 @@ export default function TiptapDemo() {
 
   return (
     <>
-      <RichTextEditor
-        editor={editor}
-        immediatelyRenderPreview={true}
-        enablePreview={true}
-      />
+      <RichTextEditor editor={editor} theme="github" mode="dark" />
     </>
   );
 }

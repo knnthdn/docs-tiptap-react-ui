@@ -1,0 +1,99 @@
+﻿# NotionEditor
+
+`NotionEditor` renders a Notion-like editor surface around an editor instance created by `useTiptapEditor`.
+
+Use it when you want a document-first writing experience with slash commands, block controls, contextual menus, drag handles, image insertion, tables, YouTube embeds, and lightweight formatting controls.
+
+`NotionEditor` does not behave exactly like `RichTextEditor`: it does not support `theme`, `enablePreview`, `onSave`, `enableWordCount`, or the RichTextEditor mode toggle. It has its own Notion-style UI and accepts `mode`, `extensionState`, and `className`.
+
+## Import
+
+```tsx
+import { NotionEditor } from "tiptap-react-ui";
+```
+
+## Signature
+
+```tsx
+function NotionEditor(props: NotionEditorProps): JSX.Element | null;
+```
+
+## Basic Usage
+
+```tsx
+"use client";
+
+import { NotionEditor, useTiptapEditor } from "tiptap-react-ui";
+
+export function NotionEditorExample() {
+  const { editor, isEditorLoading } = useTiptapEditor();
+
+  if (isEditorLoading) return null;
+
+  return <NotionEditor editor={editor} />;
+}
+```
+
+## Props
+
+| Prop | Type | Default | Description |
+| --- | --- | --- | --- |
+| `editor` | `Editor` | Required | Editor instance returned by `useTiptapEditor`. |
+| `mode` | `"light" \| "dark" \| "system"` | `"light"` | Applies light, dark, or system mode to the Notion editor. |
+| `extensionState` | `EditorExtensionStateMap` | all visible | Controls command and menu visibility/interactivity. |
+| `className` | `string` | - | Classes applied to the Notion editor wrapper. |
+
+## Extension State
+
+`NotionEditor` supports the same `extensionState` map used by `RichTextEditor`, but applies it to slash commands, bubble menu controls, and matching keyboard shortcuts.
+
+```tsx
+<NotionEditor
+  editor={editor}
+  extensionState={{
+    imageUpload: "hidden",
+    table: "disable",
+  }}
+/>
+```
+
+States:
+
+| State | Behavior |
+| --- | --- |
+| `"visible"` | Feature appears and works normally. |
+| `"disable"` | Feature remains visible, but cannot be selected or invoked. |
+| `"hidden"` | Feature is removed from slash commands and bubble menus. |
+
+## Layout
+
+The Notion editor grows naturally with its content and does not reserve a minimum canvas height by default. Pass `className` when you want to control the wrapper layout.
+
+```tsx
+<NotionEditor
+  editor={editor}
+  className="mx-auto min-h-[32rem] max-w-3xl bg-white"
+/>
+```
+
+To constrain the editable ProseMirror element itself, pass `className` to `useTiptapEditor`.
+
+```tsx
+const { editor } = useTiptapEditor({
+  className: "max-h-[70vh] overflow-y-auto px-4",
+});
+
+return <NotionEditor editor={editor} />;
+```
+
+## Mode
+
+Use `mode` to set the Notion editor surface to light, dark, or system.
+
+```tsx
+<NotionEditor editor={editor} mode="dark" />
+```
+
+## When To Use
+
+Use `NotionEditor` when your product needs a focused document-writing surface. Use `RichTextEditor` when you need a more traditional toolbar-first WYSIWYG editor with preview tabs, save action, word count, themes, and mode toggle.

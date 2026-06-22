@@ -2,6 +2,8 @@
 
 `RichTextEditor` renders the complete editing interface around an editor instance created by `useTiptapEditor`.
 
+Use it when you want a full WYSIWYG editor with toolbar controls, bubble menus, preview tabs, optional mode toggle, save action, table of contents preview, and word count footer.
+
 ## Import
 
 ```tsx
@@ -17,10 +19,14 @@ function RichTextEditor(props: RichTextEditorProps): JSX.Element | null;
 ## Basic Usage
 
 ```tsx
+"use client";
+
 import { RichTextEditor, useTiptapEditor } from "tiptap-react-ui";
 
 export function Editor() {
-  const { editor } = useTiptapEditor({ immediatelyRender: false });
+  const { editor, isEditorLoading } = useTiptapEditor();
+
+  if (isEditorLoading) return null;
 
   return <RichTextEditor editor={editor} />;
 }
@@ -28,14 +34,98 @@ export function Editor() {
 
 ## Props
 
-| Prop                       | Type                        | Default  | Description                                                                             |
-| -------------------------- | --------------------------- | -------- | --------------------------------------------------------------------------------------- |
-| `editor`                   | `Editor`                    | Required | Editor instance returned by `useTiptapEditor`.                                          |
-| `onSave`                   | `(val: OnSaveArgs) => void` | -        | Adds a save action to the toolbar and receives JSON plus HTML.                          |
-| `enablePreview`            | `boolean`                   | `false`  | Enables Editor and Preview tabs.                                                        |
-| `enableWordCount`          | `boolean`                   | `true`   | Shows word and character count footer.                                                  |
-| `immediatelyRenderPreview` | `boolean`                   | `true`   | Controls immediate rendering for preview output. Use `false` for SSR-sensitive screens. |
-| `className`                | `string`                    | -        | Classes applied to the editor content wrapper.                                          |
+| Prop | Type | Default | Description |
+| --- | --- | --- | --- |
+| `editor` | `Editor` | Required | Editor instance returned by `useTiptapEditor`. |
+| `onSave` | `(val: OnSaveArgs) => void` | - | Adds a save action to the toolbar and receives JSON plus HTML. |
+| `enablePreview` | `boolean` | `false` | Enables Editor and Preview tabs. |
+| `enableTableOfContents` | `boolean` | `false` | Shows a generated table of contents in the JSON preview. |
+| `tableOfContentsPosition` | `"left" \| "right"` | `"right"` | Controls which side the preview table of contents appears on. |
+| `enableWordCount` | `boolean` | `true` | Shows word and character count footer. |
+| `immediatelyRenderPreview` | `boolean` | `false` | Controls immediate rendering for preview output. Defaults to `false` for SSR-sensitive screens. |
+| `extensionState` | `EditorExtensionStateMap` | all visible | Controls whether editor features are visible, disabled, or hidden. |
+| `theme` | `RichTextEditorTheme` | `"default"` | Applies one of the built-in editor color themes. |
+| `mode` | `"light" \| "dark" \| "system"` | `"light"` | Sets the editor theme mode. |
+| `enableModeToggle` | `boolean` | `false` | Shows a mode toggle in the editor header for switching light, dark, and system mode. |
+| `wrapperClassName` | `string` | - | Classes applied to the outer RichTextEditor wrapper, including preview tabs, mode toggle, preview panel, and editor shell. |
+| `editorClassName` | `string` | - | Classes applied to the editor shell that contains the menubar, editable content, drag handle, and word count footer. |
+
+## Styling
+
+Styling can feel a little confusing at first because `tiptap-react-ui` intentionally keeps multiple styling layers open. The goal is to make the library as customizable as possible without forcing one layout model on every app.
+
+### Styling Layers
+
+| Styling API | Applied To | Best For |
+| --- | --- | --- |
+| `useTiptapEditor({ className })` | The editable ProseMirror document element. | Text area height, scrolling, document padding, typography, and the cursor/content surface itself. |
+| `RichTextEditor.wrapperClassName` | The outer `.tr-editor` wrapper around preview tabs, mode toggle, preview output, and editor shell. | Page placement, max width, centering, outer spacing, full editor height, and the whole editor background context. |
+| `RichTextEditor.editorClassName` | The `.tr-editor-shell` that contains the menubar, editable content, drag handle, and word count footer. | Editor chrome visuals such as border, radius, shadow, shell background, and shell height. |
+
+### Outer Wrapper
+
+Use `wrapperClassName` when you want to position or size the whole editor UI inside your page.
+
+```tsx
+<RichTextEditor
+  editor={editor}
+  wrapperClassName="mx-auto w-full max-w-4xl py-6"
+/>
+```
+
+This wrapper includes preview controls and the mode toggle when those features are enabled.
+
+```tsx
+<RichTextEditor
+  editor={editor}
+  enablePreview
+  enableModeToggle
+  wrapperClassName="mx-auto w-full max-w-5xl"
+/>
+```
+
+### Editor Shell
+
+Use `editorClassName` when you want to style the editor chrome: menubar, editable content wrapper, drag handle area, and word count footer.
+
+```tsx
+<RichTextEditor
+  editor={editor}
+  editorClassName="rounded-xl border bg-background shadow-sm"
+/>
+```
+
+### Editable Document
+
+Use `useTiptapEditor({ className })` when you want to style the text editor itself: the ProseMirror document where the user types.
+
+```tsx
+const { editor } = useTiptapEditor({
+  className: "min-h-[420px] max-h-[70vh] overflow-y-auto p-6",
+});
+
+return <RichTextEditor editor={editor} />;
+```
+
+The hook keeps its default styles intentionally small: core editor typography plus focus handling. Layout, scrolling, padding, borders, and backgrounds are opt-in.
+
+### Full Height Layout
+
+For a full-height editor screen, give the wrapper and shell a height, then constrain the editable document area through `useTiptapEditor`.
+
+```tsx
+const { editor } = useTiptapEditor({
+  className: "max-h-full overflow-y-auto p-6",
+});
+
+return (
+  <RichTextEditor
+    editor={editor}
+    wrapperClassName="h-screen"
+    editorClassName="h-full"
+  />
+);
+```
 
 ## Save Payload
 
@@ -58,15 +148,51 @@ type OnSaveArgs = {
 
 ## Preview Mode
 
-When `enablePreview` is true, the component adds tabs for editing and previewing generated content.
+When `enablePreview` is true, the component adds tabs for editing and previewing generated JSON and HTML content.
+
+```tsx
+<RichTextEditor editor={editor} enablePreview />
+```
+
+## Table Of Contents
+
+Use `enableTableOfContents` to show a generated table of contents beside the JSON preview.
 
 ```tsx
 <RichTextEditor
   editor={editor}
   enablePreview
-  immediatelyRenderPreview={false}
+  enableTableOfContents
+  tableOfContentsPosition="left"
 />
 ```
+
+The TOC is generated from live editor state. It appears in the JSON preview only. `RenderHTML` and `editor.getHTML()` do not include a live TOC because serialized HTML does not contain that editor state.
+
+## Extension State
+
+Use `extensionState` to control built-in editor features. Each omitted key defaults to `"visible"`.
+
+```tsx
+<RichTextEditor
+  editor={editor}
+  extensionState={{
+    imageUpload: "hidden",
+    bold: "disable",
+    table: "visible",
+  }}
+/>
+```
+
+States:
+
+| State | Behavior |
+| --- | --- |
+| `"visible"` | Feature is shown and works normally. |
+| `"disable"` | Feature remains visible, but its UI control and matching keyboard shortcut are disabled. |
+| `"hidden"` | Feature is removed from editor UI and its matching keyboard shortcut is disabled. |
+
+Group keys such as `history`, `typography`, and `textAlign` apply to their child controls unless a child control has its own state.
 
 ## Word Count
 
@@ -76,6 +202,67 @@ Word and character count are enabled by default.
 <RichTextEditor editor={editor} enableWordCount={false} />
 ```
 
+## Themes
+
+Use `theme` to apply one of the built-in editor color themes.
+
+```tsx
+<RichTextEditor editor={editor} theme="violet" />
+```
+
+Available themes:
+
+```ts
+type RichTextEditorTheme =
+  | "default"
+  | "pink"
+  | "rose"
+  | "violet"
+  | "blue"
+  | "emerald"
+  | "amber"
+  | "github"
+  | "coffee"
+  | "mono"
+  | "slate"
+  | "midnight"
+  | "ocean"
+  | "forest"
+  | "sunset"
+  | "cream"
+  | "cyber"
+  | "lavender"
+  | "terminal";
+```
+
+## Theme Mode
+
+Use `mode` to set the editor theme mode. The default mode is `light`.
+
+```tsx
+<RichTextEditor editor={editor} mode="dark" />
+```
+
+Use `system` to follow the user's system preference.
+
+```tsx
+<RichTextEditor editor={editor} mode="system" />
+```
+
+## Mode Toggle
+
+Use `enableModeToggle` to show a mode toggle in the editor header.
+
+```tsx
+<RichTextEditor
+  editor={editor}
+  enablePreview
+  enableModeToggle
+/>
+```
+
+When `enableModeToggle` is `false`, the editor does not read or write the persisted `tiptap-react-ui-theme-mode` value. When `enableModeToggle` is `true`, user mode changes are persisted and restored on reload.
+
 ## Null Editor Behavior
 
-The component returns `null` if the editor instance is not ready. This lets you pass the hook result directly without building a loading state unless your UI needs one.
+The component returns `null` if the editor instance is not ready. You can also use `isEditorLoading` from `useTiptapEditor` to render your own loading state.

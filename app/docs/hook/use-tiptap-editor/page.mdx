@@ -2,11 +2,9 @@ import { Tabs } from "nextra/components";
 
 # useTiptapEditor Hook
 
-The `useTiptapEditor` hook provides a pre-configured Tiptap editor instance with all extensions already set up, eliminating the need for manual configuration. This hook simplifies editor initialization and returns a ready-to-use editor instance along with utility functions for managing content.
+The `useTiptapEditor` hook creates a preconfigured Tiptap editor instance with the extensions used by `RichTextEditor`, `NotionEditor`, `RenderJSON`, and the package preview surfaces.
 
-## Overview
-
-Instead of manually configuring extensions and editor options, the `useTiptapEditor` hook handles all the setup internally. You can immediately start using the editor with sensible defaults while still having access to advanced customization options.
+It returns the editor instance, a loading flag, and helpers for reading the current content as JSON and HTML.
 
 ## Import
 
@@ -22,26 +20,23 @@ function useTiptapEditor(options?: TiptapEditorProps): TiptapEditorReturnTypes;
 
 ## Options
 
-`useTiptapEditor` accepts the selected `UseEditorOptions` supported by the package, plus library-specific options.
+`useTiptapEditor` accepts selected Tiptap `UseEditorOptions`, plus library-specific options.
 
-| Option              | Type                                             | Default           | Description                                                   |
-| ------------------- | ------------------------------------------------ | ----------------- | ------------------------------------------------------------- |
-| `content`           | `Content`                                        | -                 | Initial editor content as HTML or Tiptap JSON.                |
-| `autofocus`         | `boolean \| "start" \| "end" \| "all" \| number` | -                 | Controls initial focus behavior.                              |
-| `editable`          | `boolean`                                        | -                 | Controls whether the editor can be edited.                    |
-| `immediatelyRender` | `boolean`                                        | Tiptap default    | Set to `false` in SSR/client-rendered frameworks when needed. |
-| `editorProps`       | `EditorProps`                                    | Internal defaults | ProseMirror editor props. The library sets base CSS classes.  |
-| `onUpdate`          | `Function`                                       | -                 | Called when editor content changes.                           |
-| `onCreate`          | `Function`                                       | -                 | Called when the editor instance is created.                   |
-| `onFocus`           | `Function`                                       | -                 | Called when the editor receives focus.                        |
-| `onBlur`            | `Function`                                       | -                 | Called when the editor loses focus.                           |
-| `isPreview`         | `boolean`                                        | `false`           | Removes edit-mode padding and border for preview surfaces.    |
-| `className`         | `string`                                         | -                 | Adds classes to the ProseMirror editor element.               |
-| `handleImageUpload` | `object`                                         | fallback uploader | Configures uploads for the image upload node.                 |
+| Option              | Type                                             | Default                | Description                                                                                     |
+| ------------------- | ------------------------------------------------ | ---------------------- | ----------------------------------------------------------------------------------------------- |
+| `content`           | `Content`                                        | -                      | Initial editor content as HTML or Tiptap JSON.                                                  |
+| `autofocus`         | `boolean \| "start" \| "end" \| "all" \| number` | -                      | Controls initial focus behavior.                                                                |
+| `editable`          | `boolean`                                        | -                      | Controls whether the editor can be edited.                                                      |
+| `immediatelyRender` | `boolean`                                        | `false`                | Controls immediate editor rendering. Defaults to `false` to reduce SSR hydration mismatch risk. |
+| `editorProps`       | `EditorProps`                                    | internal defaults      | ProseMirror editor props. The library sets base attributes and merges your options.             |
+| `placeholder`       | `string`                                         | `"Write something..."` | Placeholder text shown when the editor is empty.                                                |
+| `className`         | `string`                                         | -                      | Adds classes to the editable ProseMirror editor element.                                        |
+| `handleImageUpload` | `object`                                         | fallback uploader      | Configures uploads for the image upload node.                                                   |
+| `tableOfContents`   | `TableOfContentsOptions`                         | -                      | Registers and configures the Tiptap table of contents extension.                                |
 
 ### Tiptap Options
 
-All standard Tiptap `useEditor` options are supported:
+All standard Tiptap options selected by the package are supported:
 
 <Tabs
   items={["lifecycle", "content", "extensions", "rendering"]}
@@ -50,56 +45,56 @@ All standard Tiptap `useEditor` options are supported:
   <Tabs.Tab value="lifecycle">
     #### Lifecycle Hooks
 
-    - `onBeforeCreate`: Called before editor creation
-    - `onCreate`: Called when editor is created
-    - `onUpdate`: Called when content is updated
-    - `onSelectionUpdate`: Called when text selection changes
-    - `onTransaction`: Called for every transaction
-    - `onFocus`: Called when editor gains focus
-    - `onBlur`: Called when editor loses focus
-    - `onDestroy`: Called when editor is destroyed
-    - `onMount`: Called when editor mounts
-    - `onUnmount`: Called when editor unmounts
-    - `onDelete`: Called when content is deleted
-    - `onDrop`: Called when content is dropped
-    - `onPaste`: Called when content is pasted
-    - `onContentError`: Called when content has errors
+    - `onBeforeCreate`
+    - `onCreate`
+    - `onUpdate`
+    - `onSelectionUpdate`
+    - `onTransaction`
+    - `onFocus`
+    - `onBlur`
+    - `onDestroy`
+    - `onMount`
+    - `onUnmount`
+    - `onDelete`
+    - `onDrop`
+    - `onPaste`
+    - `onContentError`
 
   </Tabs.Tab>
 
   <Tabs.Tab value="content">
     #### Content Configuration
 
-    - `content`: Initial editor content (HTML or JSON)
-    - `editable`: Whether the editor is editable
-    - `autofocus`: Auto-focus behavior
-    - `textDirection`: Text direction (LTR/RTL)
-    - `parseOptions`: Options for parsing content
+    - `content`
+    - `editable`
+    - `autofocus`
+    - `textDirection`
+    - `parseOptions`
 
   </Tabs.Tab>
 
   <Tabs.Tab value="extensions">
-    #### Extensions Configuration
+    #### Extension Configuration
 
-    - `coreExtensionOptions`: Options for core extensions
-    - `enableCoreExtensions`: Enable/disable core extensions
-    - `enableExtensionDispatchTransaction`: Allow extensions to dispatch transactions
-    - `enableInputRules`: Enable input rules
-    - `enablePasteRules`: Enable paste rules
-    - `editorProps`: ProseMirror editor props
+    - `coreExtensionOptions`
+    - `enableCoreExtensions`
+    - `enableExtensionDispatchTransaction`
+    - `enableInputRules`
+    - `enablePasteRules`
+    - `editorProps`
 
   </Tabs.Tab>
 
   <Tabs.Tab value="rendering">
     #### Rendering Configuration
 
-    - `immediatelyRender`: Render immediately on mount
-    - `injectCSS`: Auto-inject editor CSS
-    - `injectNonce`: Nonce for CSP
-    - `element`: DOM element to mount editor
-    - `shouldRerenderOnTransaction`: Re-render on transactions
-    - `enableContentCheck`: Enable content validation
-    - `emitContentError`: Emit content errors
+    - `immediatelyRender`
+    - `injectCSS`
+    - `injectNonce`
+    - `element`
+    - `shouldRerenderOnTransaction`
+    - `enableContentCheck`
+    - `emitContentError`
 
   </Tabs.Tab>
 </Tabs>
@@ -109,6 +104,7 @@ All standard Tiptap `useEditor` options are supported:
 ```ts
 type TiptapEditorReturnTypes = {
   editor: Editor;
+  isEditorLoading: boolean;
   getEditorContent: () => {
     json: JSONContent | null;
     html: string | null;
@@ -118,90 +114,72 @@ type TiptapEditorReturnTypes = {
 
 | Property           | Type                   | Description                                                                                                     |
 | ------------------ | ---------------------- | --------------------------------------------------------------------------------------------------------------- |
-| `editor`           | `Editor`               | The Tiptap editor instance. It can be unavailable during initial mount, so guard before calling editor methods. |
+| `editor`           | `Editor`               | The Tiptap editor instance. It can be unavailable during initial mount.                                         |
+| `isEditorLoading`  | `boolean`              | `true` while `useEditor` has not created an editor instance yet.                                                |
 | `getEditorContent` | `() => { json, html }` | Returns current content as Tiptap JSON and serialized HTML. Returns `null` values when the editor is not ready. |
 
-## Usage Examples
-
-### Basic Setup
+## Basic Setup
 
 ```tsx
+"use client";
+
 import { RichTextEditor, useTiptapEditor } from "tiptap-react-ui";
 
 export function Editor() {
-  const { editor, getEditorContent } = useTiptapEditor({
+  const { editor, isEditorLoading } = useTiptapEditor({
     content: "<p>Hello world</p>",
   });
+
+  if (isEditorLoading) return null;
 
   return <RichTextEditor editor={editor} />;
 }
 ```
 
-### With Image Upload
+## Default Styling
 
-```typescript
-const { editor, getEditorContent } = useTiptapEditor({
-  content: "<p>Welcome to the editor</p>",
+The hook applies minimal editor defaults:
+
+```txt
+tiptap text-left text-base focus:outline-0
+```
+
+It does not impose minimum height, maximum height, overflow, padding, borders, or background styles, it naturally adopt its wrapper and grow with content. Add those through `className` when you need to style the actual editable ProseMirror document.
+
+```tsx
+const { editor } = useTiptapEditor({
+  className: "min-h-[420px] max-h-[70vh] overflow-y-auto p-6",
+});
+```
+
+## With Image Upload
+
+```tsx
+const { editor } = useTiptapEditor({
   handleImageUpload: {
-    onUpload: async (file, onProgress) => {
-      // Simulate upload
-      for (let i = 0; i <= 100; i += 10) {
-        await new Promise((r) => setTimeout(r, 100));
-        onProgress?.({ progress: i });
-      }
-      return "/images/uploaded.jpg";
+    maxLimit: 10,
+    limit: 5,
+    onUpload: async (file, onProgress, abortSignal) => {
+      const formData = new FormData();
+      formData.append("file", file);
+
+      const response = await fetch("/api/upload", {
+        method: "POST",
+        body: formData,
+        signal: abortSignal,
+      });
+
+      onProgress?.({ progress: 100 });
+      const data = await response.json();
+      return data.url;
     },
-    maxLimit: 10 * 1024 * 1024,
-    limit: 20,
   },
 });
 ```
 
-### With Lifecycle Hooks
+## Getting Editor Content
 
-```typescript
-const { editor, getEditorContent } = useTiptapEditor({
-  onUpdate: ({ editor }) => {
-    const { json, html } = getEditorContent();
-    console.log("Content updated:", { json, html });
-  },
-  onFocus: () => {
-    console.log("Editor focused");
-  },
-  onBlur: () => {
-    console.log("Editor blurred");
-  },
-});
-```
-
-### Preview Mode
-
-```typescript
-const { editor } = useTiptapEditor({
-  content: savedContent,
-  isPreview: true,
-  className: 'prose prose-sm',
-});
-
-return (
-  <div className="p-4 bg-white rounded-lg">
-    {/* Content displays in read-only preview format */}
-  </div>
-);
-```
-
-### Custom Styling
-
-```typescript
-const { editor } = useTiptapEditor({
-  content: "<p>Styled editor</p>",
-  className: "h-96 p-4 border-2 border-blue-500 rounded-lg",
-});
-```
-
-### Getting Editor Content
-
-```typescript
+```tsx
 const { editor, getEditorContent } = useTiptapEditor({
   content: "<h1>My Document</h1><p>Some content</p>",
 });
@@ -209,29 +187,25 @@ const { editor, getEditorContent } = useTiptapEditor({
 function handleSave() {
   const { json, html } = getEditorContent();
 
-  // Send to your API
-  fetch("/api/documents", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({
-      content: json,
-      html: html,
-    }),
-  });
+  if (!json || !html) return;
+
+  saveDocument({ json, html });
 }
 ```
 
+For persisted editor content, prefer storing and rendering JSON with `RenderJSON`. Store HTML alongside it only when you need display-ready markup, indexing, email output, or external integrations.
+
 ## Important Notes
 
-- **Null Handling**: The `editor` can be `null` during the initial mount. Always check before using it.
-- **SSR**: For Next.js SSR environments, wrap the component with `'use client'` directive.
-- **Performance**: The `getEditorContent()` function can be called frequently, but consider debouncing expensive operations like API calls.
-- **Abort Signals**: Use the provided `abortSignal` in image uploads to properly handle cancellations.
-- **Content Formats**: Both JSON and HTML formats are always available. Use JSON for data storage and HTML for rendering.
+- Use `isEditorLoading` when you want to render a loading state while the editor initializes.
+- For Next.js and other SSR frameworks, keep editor components in client components.
+- `immediatelyRender` defaults to `false` for SSR safety.
+- `getEditorContent()` can be called frequently, but debounce expensive API calls.
+- Use the provided `abortSignal` in image uploads to handle cancellations.
 
 ## See Also
 
-- Read the [API Reference](https://tiptap.dev/docs/editor/api/editor) for other detailed Tiptap configuration options
-- [RichTextEditor Component](/docs/component/rich-text-editor)
-- [RenderJSON Component](/docs/component/render-json)
-- [RenderHTML Component](/docs/component/render-html)
+- [RichTextEditor Component](/docs/components/rich-text-editor)
+- [NotionEditor Component](/docs/components/notion-editor)
+- [RenderJSON Component](/docs/components/render-json)
+- [RenderHTML Component](/docs/components/render-html)

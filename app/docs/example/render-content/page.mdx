@@ -2,7 +2,7 @@
 
 This example shows how to render editor output with `RenderJSON` and `RenderHTML`.
 
-Use `RenderJSON` for content from `editor.getJSON()` or `getEditorContent().json`. Use `RenderHTML` for content from `editor.getHTML()` or `getEditorContent().html`.
+Use `RenderJSON` for content from `editor.getJSON()` or `getEditorContent().json`. This is the recommended path for editor-generated content because it preserves the Tiptap document structure. Use `RenderHTML` for content from `editor.getHTML()` or `getEditorContent().html` when you need serialized markup for external systems, indexing, email, or sanitization workflows.
 
 ## Import Styles
 
@@ -44,7 +44,8 @@ export default function JsonPreview() {
   return (
     <RenderJSON
       content={content}
-      contentClassName="prose dark:prose-invert max-w-none"
+      mode="system"
+      className="max-w-7xl mx-auto"
     />
   );
 }
@@ -66,7 +67,8 @@ export default function HtmlPreview() {
   return (
     <RenderHTML
       content={content}
-      className="prose dark:prose-invert max-w-none"
+      mode="system"
+      className="max-w-7xl mx-auto"
     />
   );
 }
@@ -80,7 +82,12 @@ Use `getEditorContent()` when you want to render the current editor content some
 "use client";
 
 import { useState } from "react";
-import { RichTextEditor, RenderHTML, RenderJSON, useTiptapEditor } from "tiptap-react-ui";
+import {
+  RichTextEditor,
+  RenderHTML,
+  RenderJSON,
+  useTiptapEditor,
+} from "tiptap-react-ui";
 import type { JSONContent } from "@tiptap/core";
 
 type PreviewContent = {
@@ -91,9 +98,8 @@ type PreviewContent = {
 export default function EditorWithPreview() {
   const [preview, setPreview] = useState<PreviewContent | null>(null);
 
-  const { editor, getEditorContent } = useTiptapEditor({
+  const { editor, getEditorContent, isEditorLoading } = useTiptapEditor({
     content: "<p>Write something and render it below.</p>",
-    immediatelyRender: false,
   });
 
   function renderCurrentContent() {
@@ -103,6 +109,8 @@ export default function EditorWithPreview() {
 
     setPreview({ json, html });
   }
+
+  if (isEditorLoading) return null;
 
   return (
     <div className="space-y-8">
@@ -116,12 +124,13 @@ export default function EditorWithPreview() {
         <div className="space-y-8">
           <RenderJSON
             content={preview.json}
-            immediatelyRender={false}
-            contentClassName="prose dark:prose-invert max-w-none"
+            mode="system"
+            className="prose dark:prose-invert max-w-none"
           />
 
           <RenderHTML
             content={preview.html}
+            mode="system"
             className="prose dark:prose-invert max-w-none"
           />
         </div>
@@ -170,8 +179,7 @@ export default function PostPreview({ postId }: { postId: string }) {
 
       <RenderJSON
         content={post.contentJson}
-        immediatelyRender={false}
-        contentClassName="prose dark:prose-invert max-w-none"
+        className="prose dark:prose-invert max-w-none"
       />
 
       <RenderHTML
@@ -226,8 +234,7 @@ export default function PostContent({
 
       <RenderJSON
         content={json}
-        immediatelyRender={false}
-        contentClassName="prose dark:prose-invert max-w-none"
+        className="prose dark:prose-invert max-w-none"
       />
 
       <RenderHTML
@@ -260,10 +267,10 @@ export function SafeHtmlPreview({ html }: { html: string }) {
 
 ## Choosing a Renderer
 
-| Renderer | Input | Best For |
-| --- | --- | --- |
+| Renderer     | Input         | Best For                                                                                |
+| ------------ | ------------- | --------------------------------------------------------------------------------------- |
 | `RenderJSON` | `JSONContent` | Re-editable content, preserving Tiptap structure, documents with editor-specific nodes. |
-| `RenderHTML` | `string` | Display-ready content, CMS/blog pages, external integrations, sanitized user content. |
+| `RenderHTML` | `string`      | Serialized markup, CMS/blog pages, external integrations, email, indexing, sanitized user content. |
 
 ## Related
 

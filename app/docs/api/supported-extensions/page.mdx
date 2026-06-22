@@ -1,4 +1,4 @@
-﻿# Supported Extensions
+# Supported Extensions
 
 `useTiptapEditor` ships with a preconfigured extension set so you can use the editor without wiring Tiptap extensions manually.
 
@@ -7,15 +7,16 @@
 | Feature | Extension or Implementation | Notes |
 | --- | --- | --- |
 | Base editing | `StarterKit` | Headings 1-6, paragraphs, bold, italic, lists, blockquote, history, and core nodes. |
-| Placeholder | `Placeholder` | Shows `Write something...` when the editor is empty. |
+| Placeholder | `Placeholder` | Shows the configured placeholder text when the editor is empty. |
 | Links | `Link` | Uses `https` as the default protocol, `openOnClick`, and no automatic autolinking. |
 | Code blocks | `CodeBlockLowlight` | Uses `lowlight` and a custom React node view. |
 | Inline code | `CodeInlineLowlight` | Adds inline code highlighting support. |
 | Highlight | `Highlight` | Enables multicolor highlighting. |
-| Text style | `TextStyleKit` | Supports text styling marks used by the toolbar. |
+| Text style | `TextStyleKit` | Supports text styling marks used by the editor UI. |
 | Text alignment | `TextAlign` | Applies to headings, paragraphs, and task items. |
 | Task lists | `TaskList` and `TaskItem` | Supports nested task items. |
 | Tables | `NotionTableExtensions` | Provides table behavior and table node views. |
+| Table of contents | `TableOfContents` | Registered when `useTiptapEditor({ tableOfContents })` is provided. Powers JSON preview TOC. |
 | Images | Extended `Image` | Supports resizing and left, center, or right alignment. |
 | Image upload | `ImageUploadNode` | Uses `handleImageUpload` options from the hook. |
 | YouTube | Extended `Youtube` | Supports alignment and full-width rendering attributes. |
@@ -23,8 +24,57 @@
 
 ## Editor UI Features
 
-The `RichTextEditor` component uses these extensions to power the menubar, bubble menu, YouTube bubble menu, drag handle, preview tabs, and word count footer.
+`RichTextEditor` uses these extensions to power the menubar, bubble menu, YouTube bubble menu, drag handle, preview tabs, table of contents, and word count footer.
+
+`NotionEditor` uses the same editor foundation for a Notion-like writing surface with slash commands, block controls, contextual controls, and a document-first layout.
+
+## Extension State
+
+`RichTextEditor` and `NotionEditor` accept `extensionState` so you can control which UI actions are available.
+
+```tsx
+<RichTextEditor
+  editor={editor}
+  extensionState={{
+    imageUpload: "hidden",
+    youtube: "disable",
+    table: "visible",
+  }}
+/>
+```
+
+Each extension state can be:
+
+| State | Behavior |
+| --- | --- |
+| `visible` | Shows the control and keeps it enabled. This is the default. |
+| `disable` | Shows the control but disables the action. |
+| `hidden` | Removes the control from the editor UI. |
+
+## Code Block Shortcuts
+
+Code blocks support Markdown-style activation. Type a fenced code block language, then press Enter to create a highlighted code block for that language.
+
+````md
+```js
+````
+
+After pressing Enter, the editor creates a JavaScript code block and highlights the content with the configured `lowlight` syntax highlighter.
+
+You can use other supported language names the same way:
+
+````md
+```tsx
+````
+
+````md
+```css
+````
+
+````md
+```html
+````
 
 ## Custom Extensions
 
-The current public API does not expose an `extensions` prop directly. The package is designed as a pre-built editor. Use the supported hook options for lifecycle, content, rendering, uploads, and editor props.
+The current public API does not expose an `extensions` prop directly. The package is designed as a pre-built editor. Use the supported hook options for lifecycle, content, rendering, uploads, placeholder text, editor props, and editor UI state.

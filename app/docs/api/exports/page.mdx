@@ -7,32 +7,46 @@
 ```tsx
 import {
   RichTextEditor,
+  NotionEditor,
   useTiptapEditor,
   RenderJSON,
   RenderHTML,
+  RICH_TEXT_EDITOR_THEMES,
 } from "tiptap-react-ui";
 ```
 
-| Export            | Kind      | Purpose                                                                                         |
-| ----------------- | --------- | ----------------------------------------------------------------------------------------------- |
-| `RichTextEditor`  | Component | Renders the editor UI, toolbar, bubble menus, preview tabs, save action, and word count footer. |
-| `useTiptapEditor` | Hook      | Creates the preconfigured Tiptap editor instance and returns helpers for reading content.       |
-| `RenderJSON`      | Component | Renders saved Tiptap JSON content in a read-only editor surface.                                |
-| `RenderHTML`      | Component | Renders saved HTML content, with optional sanitization.                                         |
+| Export | Kind | Purpose |
+| --- | --- | --- |
+| `RichTextEditor` | Component | Renders the full editor UI, toolbar, bubble menus, preview tabs, save action, theme controls, extension state controls, and word count footer. |
+| `NotionEditor` | Component | Renders a Notion-like editor with slash commands, block controls, contextual menus, and extension state controls. |
+| `useTiptapEditor` | Hook | Creates the preconfigured Tiptap editor instance, returns `isEditorLoading`, and returns helpers for reading content. |
+| `RenderJSON` | Component | Renders saved Tiptap JSON content in a read-only editor surface. Recommended for editor-generated content. |
+| `RenderHTML` | Component | Renders saved HTML content, with optional sanitization. |
+| `RICH_TEXT_EDITOR_THEMES` | Constant | List of built-in RichTextEditor theme names. |
 
 ## Type Exports
 
 ```ts
-import type { OnSaveArgs } from "tiptap-react-ui";
+import type {
+  NotionEditorProps,
+  OnSaveArgs,
+  RichTextEditorMode,
+  RichTextEditorProps,
+  RichTextEditorTheme,
+} from "tiptap-react-ui";
 ```
 
-| Export       | Purpose                                                          |
-| ------------ | ---------------------------------------------------------------- |
+| Export | Purpose |
+| --- | --- |
+| `NotionEditorProps` | Props for `NotionEditor`. |
 | `OnSaveArgs` | Payload returned by `RichTextEditor` when `onSave` is triggered. |
+| `RichTextEditorMode` | `"light"`, `"dark"`, or `"system"`. |
+| `RichTextEditorProps` | Props for `RichTextEditor`. |
+| `RichTextEditorTheme` | Built-in RichTextEditor theme names. |
 
 ## Stylesheet Exports
 
-Import one of the package stylesheet entry points once in your application.
+Import one of the package stylesheet entry points once in your root layout, app entry, or app-level stylesheet.
 
 ```tsx
 import "tiptap-react-ui/style.css";
@@ -42,7 +56,7 @@ import "tiptap-react-ui/style.css";
 import "tiptap-react-ui/dist/index.css";
 ```
 
-Use the stylesheet import in your root layout, app entry, or global CSS entry depending on your framework.
+The package ships compiled styles. Consumer apps do not need Tailwind CSS or shadcn/ui configured for the editor UI to work.
 
 ## Recommended Setup
 
@@ -53,11 +67,28 @@ import "tiptap-react-ui/style.css";
 import { RichTextEditor, useTiptapEditor } from "tiptap-react-ui";
 
 export function EditorExample() {
-  const { editor } = useTiptapEditor({
-    immediatelyRender: false,
-  });
+  const { editor, isEditorLoading } = useTiptapEditor();
+
+  if (isEditorLoading) return null;
 
   return <RichTextEditor editor={editor} />;
+}
+```
+
+## NotionEditor Setup
+
+```tsx
+"use client";
+
+import "tiptap-react-ui/style.css";
+import { NotionEditor, useTiptapEditor } from "tiptap-react-ui";
+
+export function NotionEditorExample() {
+  const { editor, isEditorLoading } = useTiptapEditor();
+
+  if (isEditorLoading) return null;
+
+  return <NotionEditor editor={editor} />;
 }
 ```
 

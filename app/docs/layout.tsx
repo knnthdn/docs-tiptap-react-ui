@@ -1,33 +1,18 @@
 import { ReactNode } from "react";
 import { Footer, Layout, Navbar } from "nextra-theme-docs";
 import { getPageMap } from "nextra/page-map";
-import Image from "next/image";
 import "nextra-theme-docs/style.css";
+import Logo from "../../components/Logo";
 
 export const metadata = {
   // Define your metadata here
   // For more information on metadata API, see: https://nextjs.org/docs/app/building-your-application/optimizing/metadata
 };
 
-const LogoComponent = () => (
-  <div className="flex items-center gap-2">
-    <Image
-      src="/docs-logo.png"
-      alt="tiptap-react-ui logo"
-      width={28}
-      height={28}
-      className="rounded"
-    />
-    <b>
-      tiptap-<span className="text-[#8b5cf6]">react</span>-ui
-    </b>
-  </div>
-);
-
 const navbar = (
   <Navbar
-    logo={<LogoComponent />}
-    projectLink="https://github.com/placeholder/tiptap-react-ui"
+    logo={<Logo />}
+    projectLink="https://github.com/knnthdn/tiptap-react-ui"
   />
 );
 const footer = (
@@ -48,13 +33,13 @@ export default async function RootLayout({
       <Layout
         navbar={navbar}
         pageMap={await getPageMap()}
-        docsRepositoryBase="https://test.com"
+        docsRepositoryBase="https://github.com/knnthdn/docs-tiptap-react-ui/tree/main"
         footer={footer}
         sidebar={{
           toggleButton: false,
         }}
-        nextThemes={{
-          defaultTheme: "dark",
+        feedback={{
+          link: "https://github.com/knnthdn/tiptap-react-ui",
         }}
       >
         {children}
