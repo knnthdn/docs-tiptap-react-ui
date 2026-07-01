@@ -14,7 +14,14 @@ export default function LandingEditorsDemo() {
     return <LandingEditorSkeleton />;
   }
 
-  return <RichTextEditor editor={editor} theme="violet" enableModeToggle />;
+  return (
+    <RichTextEditor
+      editor={editor}
+      theme="violet"
+      enableModeToggle
+      mode="dark"
+    />
+  );
 }
 
 function LandingEditorSkeleton() {
