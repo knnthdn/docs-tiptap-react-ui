@@ -140,4 +140,11 @@
       font-family: "Fira Code", "Consolas", "Monaco", monospace;
     }
   }
+
+  /* Keep the playground canvas useful on wide, short laptop/landscape screens. */
+  @media (min-width: 64rem) and (max-height: 47.5rem) {
+    .playground-site-header header {
+      height: 3.5rem;
+    }
+  }
 }
