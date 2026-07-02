@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono, Inter } from "next/font/google";
+import { Head } from "nextra/components";
 import { cn } from "@/lib/utils";
 import "./globals.css";
 import "tiptap-react-ui/style.css";
@@ -32,6 +33,7 @@ export default function RootLayout({
       suppressHydrationWarning
       className={cn("font-sans", inter.variable)}
     >
+      <Head />
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
