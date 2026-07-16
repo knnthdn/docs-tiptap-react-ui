@@ -69,6 +69,7 @@ type RichTextEditorProps = {
   editor: Editor;
   onSave?: (val: OnSaveArgs) => void;
   enablePreview?: boolean;
+  enableBubbleMenu?: boolean;
   enableTableOfContents?: boolean;
   tableOfContentsPosition?: "left" | "right";
   enableWordCount?: boolean;
@@ -87,6 +88,7 @@ type RichTextEditorProps = {
 | `editor` | Required | Editor instance from `useTiptapEditor`. |
 | `onSave` | - | Adds a save action and receives `{ json, html }`. |
 | `enablePreview` | `false` | Shows Editor and Preview tabs. |
+| `enableBubbleMenu` | `true` | Shows the text-selection formatting bubble menu. |
 | `enableTableOfContents` | `false` | Shows a generated TOC in JSON preview. |
 | `tableOfContentsPosition` | `"right"` | Controls TOC placement. |
 | `enableWordCount` | `true` | Shows word and character count footer. |
@@ -104,6 +106,7 @@ type RichTextEditorProps = {
 type NotionEditorProps = {
   editor: Editor;
   mode?: RichTextEditorMode;
+  enableBubbleMenu?: boolean;
   extensionState?: EditorExtensionStateMap;
   className?: string;
 };
@@ -113,6 +116,7 @@ type NotionEditorProps = {
 | --- | --- | --- |
 | `editor` | Required | Editor instance from `useTiptapEditor`. |
 | `mode` | `"light"` | Light, dark, or system mode for the Notion editor. |
+| `enableBubbleMenu` | `true` | Shows the text-selection formatting bubble menu. |
 | `extensionState` | all visible | Controls slash commands, bubble menus, and shortcuts. |
 | `className` | - | Classes applied to the Notion editor wrapper. |
 

@@ -39,6 +39,7 @@ export function Editor() {
 | `editor` | `Editor` | Required | Editor instance returned by `useTiptapEditor`. |
 | `onSave` | `(val: OnSaveArgs) => void` | - | Adds a save action to the toolbar and receives JSON plus HTML. |
 | `enablePreview` | `boolean` | `false` | Enables Editor and Preview tabs. |
+| `enableBubbleMenu` | `boolean` | `true` | Shows the text-selection formatting bubble menu. |
 | `enableTableOfContents` | `boolean` | `false` | Shows a generated table of contents in the JSON preview. |
 | `tableOfContentsPosition` | `"left" \| "right"` | `"right"` | Controls which side the preview table of contents appears on. |
 | `enableWordCount` | `boolean` | `true` | Shows word and character count footer. |
@@ -168,6 +169,16 @@ Use `enableTableOfContents` to show a generated table of contents beside the JSO
 ```
 
 The TOC is generated from live editor state. It appears in the JSON preview only. `RenderHTML` and `editor.getHTML()` do not include a live TOC because serialized HTML does not contain that editor state.
+
+## Bubble Menus
+
+The text-selection formatting bubble menu is enabled by default. Set `enableBubbleMenu` to `false` to remove it.
+
+```tsx
+<RichTextEditor editor={editor} enableBubbleMenu={false} />
+```
+
+This only controls the text-selection formatting menu. The YouTube node menu remains available, and formatting commands and keyboard shortcuts continue to work. Use `extensionState` when you need to disable or hide individual features and their shortcuts.
 
 ## Extension State
 

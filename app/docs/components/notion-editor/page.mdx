@@ -1,10 +1,10 @@
-﻿# NotionEditor
+# NotionEditor
 
 `NotionEditor` renders a Notion-like editor surface around an editor instance created by `useTiptapEditor`.
 
 Use it when you want a document-first writing experience with slash commands, block controls, contextual menus, drag handles, image insertion, tables, YouTube embeds, and lightweight formatting controls.
 
-`NotionEditor` does not behave exactly like `RichTextEditor`: it does not support `theme`, `enablePreview`, `onSave`, `enableWordCount`, or the RichTextEditor mode toggle. It has its own Notion-style UI and accepts `mode`, `extensionState`, and `className`.
+`NotionEditor` does not behave exactly like `RichTextEditor`: it does not support `theme`, `enablePreview`, `onSave`, `enableWordCount`, or the RichTextEditor mode toggle. It has its own Notion-style UI and accepts `mode`, `enableBubbleMenu`, `extensionState`, and `className`.
 
 ## Import
 
@@ -40,8 +40,19 @@ export function NotionEditorExample() {
 | --- | --- | --- | --- |
 | `editor` | `Editor` | Required | Editor instance returned by `useTiptapEditor`. |
 | `mode` | `"light" \| "dark" \| "system"` | `"light"` | Applies light, dark, or system mode to the Notion editor. |
+| `enableBubbleMenu` | `boolean` | `true` | Shows the text-selection formatting bubble menu. |
 | `extensionState` | `EditorExtensionStateMap` | all visible | Controls command and menu visibility/interactivity. |
 | `className` | `string` | - | Classes applied to the Notion editor wrapper. |
+
+## Bubble Menus
+
+The text-selection formatting bubble menu is enabled by default. Disable it with:
+
+```tsx
+<NotionEditor editor={editor} enableBubbleMenu={false} />
+```
+
+The YouTube node menu remains available. Editor commands and keyboard shortcuts also remain active. Use `extensionState` to control individual features and their shortcuts.
 
 ## Extension State
 
